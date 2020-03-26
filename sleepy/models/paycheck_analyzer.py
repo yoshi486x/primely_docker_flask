@@ -2,8 +2,8 @@
 import collections
 import pprint as pp
 
-from models import pdf_reader, recording, tailor, visualizing
-from views import console
+from sleepy.models import pdf_reader, recording, tailor, visualizing
+from sleepy.views import console
 
 
 class AnalyzerModel(object):

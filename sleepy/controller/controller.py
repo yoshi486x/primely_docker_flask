@@ -1,6 +1,6 @@
 import pprint as pp
 
-from models import paycheck_analyzer
+from sleepy.models import paycheck_analyzer
 
 
 def paycheck_analysis():

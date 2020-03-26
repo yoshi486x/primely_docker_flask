@@ -24,7 +24,7 @@ class PdfReader(object):
         subprocess.call([EXEC_CMD, '-V', '-o', str(output_file), str(input_file)])
 
     def get_base_dir_path(self):
-        return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
     def get_pdf_dir(self, filename, suffix='.pdf'):
         """Organize input pdf path info"""
@@ -53,11 +53,13 @@ class InputQueue(object):
         self.pdf_files = pdf_files
     
     def get_base_dir_path(self):
-        return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        print('get_base_dir:', os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+        return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
     def load_pdf_filenames(self, all_files=list):
         """List all pdf files in designated directory"""
         all_files = []
+        print('self.base_dir:', self.base_dir)
         pdf_full_dir_path = pathlib.Path(self.base_dir, PDF_DIR_PATH)
         self.pdf_files = os.listdir(pdf_full_dir_path)
 
