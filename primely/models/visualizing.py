@@ -126,7 +126,7 @@ class VisualizingModel(object):
     def sort_table(self):
 
         try:
-            from models import sorting
+            from primely.models import sorting
         except:
             import sorting
 
