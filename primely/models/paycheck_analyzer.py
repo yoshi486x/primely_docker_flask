@@ -98,8 +98,11 @@ class FullAnalyzer(AnalyzerModel):
         self.create_input_queue()
         for filename in self.filenames:
             self.convert_pdf_into_text(filename)
+            print('{} pdf->txt conversion success!'.format(filename))
             self.convert_text_into_dict(filename)
+            print('{} txt->dict conversion success!'.format(filename))
             self.record_dict_data(filename)
+            print('{} dict->json conversion success!'.format(filename))
 
     def visualize_income_timechart(self):
         """Visualize data from json file and export a graph image """
