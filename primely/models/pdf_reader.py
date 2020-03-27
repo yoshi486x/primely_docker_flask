@@ -4,6 +4,7 @@ import pathlib
 import subprocess
 import sys
 
+from primely import utils
 EXEC_CMD = 'pdf2txt.py'
 OUTPUT_DIR_PATH = 'data/output/temp'
 PDF_DIR_PATH = 'data/pdf'
@@ -13,7 +14,8 @@ PDF_FILENAME_NAME = 'FILENAME'
 class PdfReader(object):
     def __init__(self, base_dir=None):
         if not base_dir:
-            base_dir = self.get_base_dir_path()
+            # base_dir = self.get_base_dir_path()
+            base_dir = utils.get_base_dir_path(__file__)
         self.base_dir = base_dir
 
     def convert_pdf_to_txt(self, input_file, output_file):
@@ -22,9 +24,6 @@ class PdfReader(object):
         :type output_file :str
         """
         subprocess.call([EXEC_CMD, '-V', '-o', str(output_file), str(input_file)])
-
-    def get_base_dir_path(self):
-        return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
     def get_pdf_dir(self, filename, suffix='.pdf'):
         """Organize input pdf path info"""
@@ -47,14 +46,11 @@ class PdfReader(object):
 class InputQueue(object):
     def __init__(self, base_dir=None, all_files=None, pdf_files=None):
         if not base_dir:
-            base_dir = self.get_base_dir_path()
+            base_dir = utils.get_base_dir_path(__file__)
         self.base_dir = base_dir
         self.all_files = all_files
         self.pdf_files = pdf_files
     
-    def get_base_dir_path(self):
-        return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
     def load_pdf_filenames(self, all_files=list):
         """List all pdf files in designated directory"""
         all_files = []
