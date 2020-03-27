@@ -1,0 +1,2 @@
+Process finished successfully!! 
+Check data/output/graphs_and_charts for exported image!
