@@ -1,2 +1,0 @@
-Would you use $db as data storage? If not, temporal json file will be created.
-[y/n]
