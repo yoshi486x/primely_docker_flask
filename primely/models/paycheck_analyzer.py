@@ -12,11 +12,7 @@ class AnalyzerModel(object):
     1. Get all pdf file name for paycheck
     2. for each file, proceed Extract and Transform
     """
-    def __init__(self, 
-        status=None, pdf_files=None, txt_files=None, **kwargs):
-        self.status = status
-        self.pdf_files = pdf_files# Not implemented yet
-        self.txt_files = txt_files# Not implemented yet
+    def __init__(self, pdf_files=None, txt_files=None, **kwargs):
         self.dict_data = collections.defaultdict()
 
     def convert_pdf_into_text(self, filename):
@@ -45,46 +41,18 @@ class AnalyzerModel(object):
         # pp.pprint(self.dict_data)
 
     def record_dict_data(self, filename):
-        """Record dict_data to multiple file/db formats (json, mongodb, mysql)"""
+        """Record dict_data to json files"""
 
-        recording_model = recording.RecordingModel(filename, self.status)
+        recording_model = recording.RecordingModel(filename)
         recording_model.record_data_in_json(self.dict_data)
-        if self.status:
-            recording_model.record_data_to_mongo(self.dict_data)
 
 
 class FullAnalyzer(AnalyzerModel):
 
-    def __init__(self, db='MongoDB', speak_color='green', filenames=None):
+    def __init__(self, speak_color='green', filenames=None):
         super().__init__()
-        self.db = db
         self.speak_color = speak_color
         self.filenames = filenames
-
-    def ask_for_db_activation(self):
-        while True:
-            template = console.get_template('db_activation.txt', self.speak_color)
-            is_yes = input(template.substitute({
-                'db': self.db}))
-
-            if is_yes.lower() == 'y' or is_yes.lower() == 'yes':
-                self.status = True
-                break
-
-            if is_yes.lower() == 'n' or is_yes.lower() == 'no':
-                self.status = False
-                break
-    
-    def check_mongodb_activation(self):
-        """Create instance for Recording models (MongoDB)"""
-
-        mongo_model = recording.MongoModel(None)
-        if not mongo_model.get_mongo_profile():
-            template = console.get_template('db_response.txt', self.speak_color)
-            print(template.substitute({'db': self.db}))
-            self.status = False
-        else:
-            self.status = True
 
     def create_input_queue(self):
         """Create queue of processing data while extracting filenames"""
