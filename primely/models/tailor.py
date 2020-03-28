@@ -6,6 +6,10 @@ import re
 
 import pprint
 pp = pprint.PrettyPrinter(indent=2)
+
+from primely import utils
+
+
 TEXT_DIR_PATH = 'data/output/temp'
 PAID_INCOME = 'total_earnings' # 差引支給額
 PAID_DATE = 'paid_date' # 支払支給日
@@ -27,14 +31,11 @@ class PartitionerModel(DataModel):
         self.ankerIndexes = [] * block_count
         self.block1, self.block2, self.block3 = list, list, list
 
-    def get_base_dir_path(self):
-        return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
     def load_data(self, filename):
         """Load data"""
 
         suffix = '.txt'
-        base_dir = self.get_base_dir_path()
+        base_dir = utils.get_base_dir_path(__file__)
         text_file_path = pathlib.Path(base_dir, TEXT_DIR_PATH, filename).with_suffix(suffix)
 
         with open(text_file_path, 'r') as text_file:

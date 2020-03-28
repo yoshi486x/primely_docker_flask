@@ -14,7 +14,6 @@ PDF_FILENAME_NAME = 'FILENAME'
 class PdfReader(object):
     def __init__(self, base_dir=None):
         if not base_dir:
-            # base_dir = self.get_base_dir_path()
             base_dir = utils.get_base_dir_path(__file__)
         self.base_dir = base_dir
 

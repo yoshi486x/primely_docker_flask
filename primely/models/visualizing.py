@@ -4,14 +4,18 @@ import numpy as np
 import os
 import pandas as pd
 import pathlib
+
 import pprint
 pp = pprint.PrettyPrinter(indent=4, width=20)
+
+from primely import utils
 
 JSON_DIR_PATH = 'data/output/json'
 GRAPHS_DIR_PATH = 'data/output/graphs_and_charts'
 INCOME_GRAPH_NAME = 'income_timechart.png'
 
 PAID_DATE = 'paid_date'
+
 
 class JsonModel(object):
     def __init__(self, filename, json_file):
@@ -27,7 +31,7 @@ class VisualizingModel(object):
 
     def __init__(self, filenames, base_dir=None, dataframe=None, figure=None):
         if not base_dir:
-            base_dir = self.get_base_dir_path()
+            base_dir = utils.get_base_dir_path(__file__)
         self.base_dir = base_dir
         if not filenames:
             filenames = self.get_json_file_path() 
@@ -35,9 +39,6 @@ class VisualizingModel(object):
         self.dataframe = dataframe
         self.figure = figure
         self.graphs = INCOME_GRAPH_NAME
-
-    def get_base_dir_path(self):
-        return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
     def get_json_file_path(self):
         """Set json file path.
