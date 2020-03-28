@@ -49,7 +49,7 @@ class AnalyzerModel(object):
 
 class FullAnalyzer(AnalyzerModel):
 
-    def __init__(self, db='MongoDB', speak_color='green', filenames=None):
+    def __init__(self, speak_color='green', filenames=None):
         super().__init__()
         self.speak_color = speak_color
         self.filenames = filenames
