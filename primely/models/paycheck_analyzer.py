@@ -2,9 +2,17 @@
 import collections
 import pprint as pp
 
+from logging import getLogger, StreamHandler, DEBUG, INFO
+
 from primely.models import pdf_reader, recording, tailor, visualizing
 from primely.views import console
 
+logger = getLogger(__name__)
+handler = StreamHandler()
+logger.setLevel(DEBUG)
+handler.setLevel(DEBUG)
+logger.addHandler(handler)
+logger.propagate = False
 
 class AnalyzerModel(object):
     """Handle data model on analyzing process
@@ -12,7 +20,7 @@ class AnalyzerModel(object):
     1. Get all pdf file name for paycheck
     2. for each file, proceed Extract and Transform
     """
-    def __init__(self, pdf_files=None, txt_files=None, **kwargs):
+    def __init__(self, status=None):
         self.dict_data = collections.defaultdict()
 
     def convert_pdf_into_text(self, filename):
@@ -26,16 +34,29 @@ class AnalyzerModel(object):
     def convert_text_into_dict(self, filename):
         """Transform txt data to dict format"""
 
-        text_tailor = tailor.PartitionerModel()
-        text_tailor.load_data(filename)
-        text_tailor.value_format_digit()
-        text_tailor.define_partitions()
-        text_tailor.partition_data()
-        text_tailor.self_correlate_block1()
-        text_tailor.self_correlate_block2()
-        text_tailor.value_format_date()
-        text_tailor.value_format_deductions()
-        text_tailor.value_format_remove_dot_in_keys()
+        try:
+            text_tailor = tailor.PartitionerModel()
+            text_tailor.load_data(filename)
+            text_tailor.value_format_digit()
+            text_tailor.define_partitions()
+            text_tailor.partition_data()
+            text_tailor.self_correlate_block1()
+            text_tailor.self_correlate_block2()
+            text_tailor.value_format_date()
+            text_tailor.value_format_deductions()
+            text_tailor.value_format_remove_dot_in_keys()
+        except:
+            logging.critial({
+                'status': 'error',
+                'msg': 'Text transformation failed'
+            })
+            raise TextTransformError('Could not complete text transformation process')
+        else:
+            logger.info({
+                'status': 'success',
+                'msg': 'Text transformation complete'
+            })
+        
         # self.dict_data = text_tailor.add_table_name()
         self.dict_data = text_tailor.dict_data
         # pp.pprint(self.dict_data)
@@ -57,30 +78,67 @@ class FullAnalyzer(AnalyzerModel):
     def create_input_queue(self):
         """Create queue of processing data while extracting filenames"""
 
-        inputQueue = pdf_reader.InputQueue()
+        try:
+            inputQueue = pdf_reader.InputQueue()
+            msg = 'Queue is set'
+        except:
+            logging.critial({
+                'status': 'error',
+                'msg': 'Could not set queue'
+            })
+            raise QueueSettingError('Could not set queue}')
+        else:
+            logger.info({
+                'status': 'success',
+                'msg': 'Queue is set'
+            })
         self.filenames = inputQueue.load_pdf_filenames()
 
     def process_all_data(self):
         """Use AnalyzerModel to process all PDF data"""
         
         self.create_input_queue()
-        for filename in self.filenames:
-            self.convert_pdf_into_text(filename)
-            print('{} pdf->txt conversion success!'.format(filename))
-            self.convert_text_into_dict(filename)
-            print('{} txt->dict conversion success!'.format(filename))
-            self.record_dict_data(filename)
-            print('{} dict->json conversion success!'.format(filename))
+        for j, filename in enumerate(self.filenames):
+            try:
+                self.convert_pdf_into_text(filename)
+                self.convert_text_into_dict(filename)
+                self.record_dict_data(filename)
+            except:
+                logger.info({
+                    'status': 'error',
+                    'index': j,
+                    'filename': filename,
+                    'msg': 'File conversion failed'
+                })
+                raise FileConvertError
+            else:
+                logger.info({
+                    'status': 'success',
+                    'index': j,
+                    'filename': filename,
+                    'msg': ''
+                })
 
     def visualize_income_timechart(self):
         """Visualize data from json file and export a graph image """
-
-        visual = visualizing.VisualizingModel(None)
-        visual.create_base_table()
-        visual.rename_columns()
-        visual.sort_table()
-        visual.camouflage_values(True)
-        visual.save_graph_to_image()
+        try:
+            visual = visualizing.VisualizingModel(None)
+            visual.create_base_table()
+            visual.rename_columns()
+            visual.sort_table()
+            visual.camouflage_values(True)
+            visual.save_graph_to_image()
+        except:
+            logger.info({
+                'status': 'sucess',
+                'msg': 'Chart output failed'
+            })
+            raise VisualizationError
+        else:
+            logger.info({
+                'status': 'sucess',
+                'msg': 'Chart output complete'
+            })
 
         # dialog
         template = console.get_template('process_finished.txt', self.speak_color)
