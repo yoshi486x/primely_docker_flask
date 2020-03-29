@@ -28,6 +28,7 @@ class AnalyzerModel(object):
     """
     def __init__(self, status=None):
         self.dict_data = collections.defaultdict()
+        self.status = status
 
     def convert_pdf_into_text(self, filename):
         
@@ -52,15 +53,15 @@ class AnalyzerModel(object):
             text_tailor.value_format_deductions()
             text_tailor.value_format_remove_dot_in_keys()
         except:
-            logging.critial({
-                'status': 'error',
-                'msg': 'Text transformation failed'
-            })
-            raise TextTransformError('Could not complete text transformation process')
+            self.status = 'error'
+            msg = 'Could not complete text transformation process'
         else:
-            logger.info({
-                'status': 'success',
-                'msg': 'Text transformation complete'
+            self.status = 'success'
+            msg = 'Text transformation complete'
+        finally:
+            logger.critical({
+                'status': self.status,
+                'msg': msg
             })
         
         # self.dict_data = text_tailor.add_table_name()
@@ -91,16 +92,17 @@ class FullAnalyzer(AnalyzerModel):
             inputQueue = pdf_reader.InputQueue()
             msg = 'Queue is set'
         except:
-            logging.critial({
-                'status': 'error',
-                'msg': 'Could not set queue'
-            })
-            raise QueueSettingError('Could not set queue}')
+            self.status = 'error'
+            msg = 'Could not set queue'
         else:
+            self.status = 'success'
+            msg = 'Queue is set'
+        finally:
             logger.info({
-                'status': 'success',
-                'msg': 'Queue is set'
+                'status': self.status,
+                'msg': msg
             })
+
         self.filenames = inputQueue.load_pdf_filenames()
 
     def process_all_data(self):
@@ -113,19 +115,17 @@ class FullAnalyzer(AnalyzerModel):
                 self.convert_text_into_dict(filename)
                 self.record_dict_data(filename)
             except:
-                logger.info({
-                    'status': 'error',
-                    'index': j,
-                    'filename': filename,
-                    'msg': 'File conversion failed'
-                })
-                raise FileConvertError
+                self.status = 'error'
+                msg = 'File conversion failed'
             else:
+                self.status = 'success'
+                msg = ''
+            finally:
                 logger.info({
-                    'status': 'success',
+                    'status': self.status,
                     'index': j,
                     'filename': filename,
-                    'msg': ''
+                    'msg': msg
                 })
 
     def visualize_income_timechart(self):
@@ -138,17 +138,19 @@ class FullAnalyzer(AnalyzerModel):
             visual.camouflage_values(True)
             visual.save_graph_to_image()
         except:
-            logger.info({
-                'status': 'success',
-                'msg': 'Chart output failed'
-            })
-            raise VisualizationError
+            self.status = 'error'
+            msg = 'Chart output failed'
         else:
+            self.status = 'success'
+            msg = 'Chart output complete'
+        finally:
             logger.info({
-                'status': 'success',
-                'msg': 'Chart output complete'
+                'status': self.status,
+                'msg': msg
             })
 
         # dialog
         template = console.get_template('process_finished.txt', self.speak_color)
-        print(template.substitute())
+        print(template.substitute({
+            'message': 'Check data/output/graphs_and_charts for exported image!'
+        }))

@@ -112,17 +112,17 @@ class VisualizingModel(object):
         col_dict = dict(zip(df.columns, renames))
         self.dataframe = df.rename(columns=col_dict)
 
-    def camouflage_values(self, camouflage=False):
+    # def camouflage_values(self, camouflage=False):
 
-        if camouflage is True:
-            try:
-                from models import camouflage
-            except:
-                try:
-                    import camouflage
-                except:
-                    return
-            self.dataframe = camouflage.camouflage(self.dataframe)
+    #     if camouflage is True:
+    #         try:
+    #             from models import camouflage
+    #         except:
+    #             try:
+    #                 import camouflage
+    #             except:
+    #                 return
+    #         self.dataframe = camouflage.camouflage(self.dataframe)
 
     def sort_table(self):
 
