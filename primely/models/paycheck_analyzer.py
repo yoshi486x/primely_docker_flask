@@ -1,4 +1,5 @@
-"""Define full-analyzer model"""
+"""Define full-analyzer model
+TODO raise error when each main process fails"""
 import collections
 import logging
 import pprint as pp
@@ -149,7 +150,7 @@ class FullAnalyzer(AnalyzerModel):
                 'msg': msg
             })
 
-        # dialog
+        # TODO: Take out this func to separate function
         template = console.get_template('process_finished.txt', self.speak_color)
         print(template.substitute({
             'message': 'Check data/output/graphs_and_charts for exported image!'
