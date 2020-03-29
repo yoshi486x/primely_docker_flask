@@ -1,4 +1,5 @@
 import collections
+import configparser
 import datetime
 import os
 import pathlib
@@ -9,8 +10,12 @@ pp = pprint.PrettyPrinter(indent=2)
 
 from primely import utils
 
+# import global parameters from config.ini
+config = configparser.ConfigParser()
+config.read('config.ini')
+TEXT_DIR_PATH = config['STORAGE']['TEXT']
 
-TEXT_DIR_PATH = 'data/output/temp'
+#TODO add irregular parameter table for below two paras
 PAID_INCOME = 'total_earnings' # 差引支給額
 PAID_DATE = 'paid_date' # 支払支給日
 
@@ -72,6 +77,7 @@ class PartitionerModel(DataModel):
         self.block3 = self.list_data[self.ankerIndexes[2]:self.ankerIndexes[3]]
 
     def update_datamodel(self, name, keys, values):
+        # TODO determin if this func should be stand alone. Only refe'd for one time.
         self.dict_data[name] = dict(zip(keys, values))
 
     def self_correlate_block1(self):

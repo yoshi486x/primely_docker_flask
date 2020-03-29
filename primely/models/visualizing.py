@@ -1,18 +1,21 @@
+# TODO: create graph output files if it doesn't exist
+
 import collections
+import configparser
 import json
 import numpy as np
 import os
 import pandas as pd
 import pathlib
 
-import pprint
-pp = pprint.PrettyPrinter(indent=4, width=20)
-
 from primely import utils
 
-JSON_DIR_PATH = 'data/output/json'
-GRAPHS_DIR_PATH = 'data/output/graphs_and_charts'
-INCOME_GRAPH_NAME = 'income_timechart.png'
+# import global parameters from config.ini
+config = configparser.ConfigParser()
+config.read('config.ini')
+JSON_DIR_PATH = config['STORAGE']['JSON']
+GRAPHS_DIR_PATH = config['STORAGE']['GRAPH']
+INCOME_GRAPH_NAME = config['FILENAME']['GRAPH']
 
 PAID_DATE = 'paid_date'
 
@@ -86,7 +89,6 @@ class VisualizingModel(object):
 
             """Single key extraction"""
             dates, keys, values = [], [], []
-            # pp.pprint(dict_data)
             date = dict_data[PAID_DATE]
             for key, value in dict_data['incomes'].items():
                 values.append(value)
@@ -112,17 +114,17 @@ class VisualizingModel(object):
         col_dict = dict(zip(df.columns, renames))
         self.dataframe = df.rename(columns=col_dict)
 
-    # def camouflage_values(self, camouflage=False):
+    def camouflage_values(self, camouflage=False):
 
-    #     if camouflage is True:
-    #         try:
-    #             from models import camouflage
-    #         except:
-    #             try:
-    #                 import camouflage
-    #             except:
-    #                 return
-    #         self.dataframe = camouflage.camouflage(self.dataframe)
+        if camouflage is True:
+            try:
+                from models import camouflage
+            except:
+                try:
+                    import camouflage
+                except:
+                    return
+            self.dataframe = camouflage.camouflage(self.dataframe)
 
     def sort_table(self):
 

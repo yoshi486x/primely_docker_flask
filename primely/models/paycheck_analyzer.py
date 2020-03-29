@@ -1,5 +1,6 @@
 """Define full-analyzer model
-TODO raise error when each main process fails"""
+TODO raise error when each main process fails
+TODO Separate severity of loggers for success and fails"""
 import collections
 import logging
 import pprint as pp
@@ -14,7 +15,8 @@ logger.setLevel(logging.INFO)
 ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 # create formatter and add it to the handler(s)
-formatter = logging.Formatter('{asctime} {name} {levelname:8s} {message}', style='{')
+# formatter = logging.Formatter('{asctime} {name} {levelname:8s} {message}', style='{')
+formatter = logging.Formatter('[{levelname}] {message}', style='{')
 ch.setFormatter(formatter)
 # add the handler(s) to the logger
 logger.addHandler(ch)
@@ -56,14 +58,19 @@ class AnalyzerModel(object):
         except:
             self.status = 'error'
             msg = 'Could not complete text transformation process'
-        else:
-            self.status = 'success'
-            msg = 'Text transformation complete'
-        finally:
             logger.critical({
                 'status': self.status,
                 'msg': msg
             })
+        else:
+            self.status = 'success'
+            msg = 'Text transformation complete'
+            logger.info({
+                'status': self.status,
+                'msg': msg
+            })
+        finally:
+            pass
         
         # self.dict_data = text_tailor.add_table_name()
         self.dict_data = text_tailor.dict_data
@@ -95,14 +102,19 @@ class FullAnalyzer(AnalyzerModel):
         except:
             self.status = 'error'
             msg = 'Could not set queue'
+            logger.critical({
+                'status': self.status,
+                'msg': msg
+            })
         else:
             self.status = 'success'
             msg = 'Queue is set'
-        finally:
             logger.info({
                 'status': self.status,
                 'msg': msg
             })
+        finally:
+            pass
 
         self.filenames = inputQueue.load_pdf_filenames()
 
@@ -118,16 +130,23 @@ class FullAnalyzer(AnalyzerModel):
             except:
                 self.status = 'error'
                 msg = 'File conversion failed'
+                logger.critical({
+                    'status': self.status,
+                    'index': j,
+                    'filename': filename,
+                    'msg': msg
+                })
             else:
                 self.status = 'success'
                 msg = ''
-            finally:
                 logger.info({
                     'status': self.status,
                     'index': j,
                     'filename': filename,
                     'msg': msg
                 })
+            finally:
+                pass
 
     def visualize_income_timechart(self):
         """Visualize data from json file and export a graph image """
@@ -141,14 +160,19 @@ class FullAnalyzer(AnalyzerModel):
         except:
             self.status = 'error'
             msg = 'Chart output failed'
-        else:
-            self.status = 'success'
-            msg = 'Chart output complete'
-        finally:
             logger.info({
                 'status': self.status,
                 'msg': msg
             })
+        else:
+            self.status = 'success'
+            msg = 'Chart output complete'
+            logger.info({
+                'status': self.status,
+                'msg': msg
+            })
+        finally:
+            pass
 
         # TODO: Take out this func to separate function
         template = console.get_template('process_finished.txt', self.speak_color)

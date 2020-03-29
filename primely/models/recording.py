@@ -1,12 +1,13 @@
 import collections
+import configparser
 import json
 import os
 import pathlib
 
-import pprint
-
-JSON_DIR_PATH = 'data/output/json'
-
+# import global parameters from config.ini
+config = configparser.ConfigParser()
+config.read('config.ini')
+JSON_DIR_PATH = config['STORAGE']['JSON']
 
 class JsonModel(object):
     def __init__(self, filename, json_file):

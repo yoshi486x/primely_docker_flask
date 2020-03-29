@@ -1,3 +1,4 @@
+import configparser
 import csv
 import os
 import pathlib
@@ -5,10 +6,14 @@ import subprocess
 import sys
 
 from primely import utils
+
+# import global parameters from config.ini
+config = configparser.ConfigParser()
+config.read('config.ini')
+OUTPUT_DIR_PATH = config['STORAGE']['TEXT']
+PDF_DIR_PATH = config['STORAGE']['PDF']
+
 EXEC_CMD = 'pdf2txt.py'
-OUTPUT_DIR_PATH = 'data/output/temp'
-PDF_DIR_PATH = 'data/pdf'
-PDF_FILENAME_NAME = 'FILENAME'
 
 
 class PdfReader(object):
