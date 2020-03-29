@@ -1,17 +1,23 @@
 """Define full-analyzer model"""
 import collections
+import logging
 import pprint as pp
-
-from logging import getLogger, StreamHandler, DEBUG, INFO
 
 from primely.models import pdf_reader, recording, tailor, visualizing
 from primely.views import console
 
-logger = getLogger(__name__)
-handler = StreamHandler()
-logger.setLevel(DEBUG)
-handler.setLevel(DEBUG)
-logger.addHandler(handler)
+# create logger with '__name__'
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+# create console handler with a defined log level
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+# create formatter and add it to the handler(s)
+formatter = logging.Formatter('{asctime} {name} {levelname:8s} {message}', style='{')
+ch.setFormatter(formatter)
+# add the handler(s) to the logger
+logger.addHandler(ch)
+# don't allow passing events to higher level loggers
 logger.propagate = False
 
 class AnalyzerModel(object):
@@ -59,7 +65,10 @@ class AnalyzerModel(object):
         
         # self.dict_data = text_tailor.add_table_name()
         self.dict_data = text_tailor.dict_data
-        # pp.pprint(self.dict_data)
+        logger.debug({
+            'filename': filename,
+            'data': self.dict_data
+        })
 
     def record_dict_data(self, filename):
         """Record dict_data to json files"""
@@ -130,13 +139,13 @@ class FullAnalyzer(AnalyzerModel):
             visual.save_graph_to_image()
         except:
             logger.info({
-                'status': 'sucess',
+                'status': 'success',
                 'msg': 'Chart output failed'
             })
             raise VisualizationError
         else:
             logger.info({
-                'status': 'sucess',
+                'status': 'success',
                 'msg': 'Chart output complete'
             })
 
