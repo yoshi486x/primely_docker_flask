@@ -6,8 +6,6 @@ import sys
 
 import termcolor
 
-# def get_base_dir_path():
-#     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def find_template(temp_file):
     """Find for template file in the given location.
