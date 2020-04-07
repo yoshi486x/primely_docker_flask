@@ -24,7 +24,7 @@ logger.addHandler(ch)
 logger.propagate = False
 
 class AnalyzerModel(object):
-    """Handle data model on analyzing process
+    """Contains functions that process a paycheck object.
     Steps:
     1. Get all pdf file name for paycheck
     2. for each file, proceed Extract and Transform
@@ -121,7 +121,6 @@ class FullAnalyzer(AnalyzerModel):
     def process_all_data(self):
         """Use AnalyzerModel to process all PDF data"""
         
-        self.create_input_queue()
         for j, filename in enumerate(self.filenames):
             try:
                 self.convert_pdf_into_text(filename)
