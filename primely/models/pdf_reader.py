@@ -40,12 +40,6 @@ class PdfReader(object):
         output_filename, _ = os.path.splitext(filename)
         return pathlib.Path(output_full_dir_path, output_filename).with_suffix(suffix)
 
-    def get_txt_(self, filename, suffix='.txt'):
-        """Organize output txt path info"""
-        output_full_dir_path = pathlib.Path(self.base_dir, OUTPUT_DIR_PATH)
-        output_filename, _ = os.path.splitext(filename)
-        return pathlib.Path(output_full_dir_path, output_filename).with_suffix(suffix)
-
 
 class InputQueue(object):
     def __init__(self, base_dir=None, all_files=None, pdf_files=None):
