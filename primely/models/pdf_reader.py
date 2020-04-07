@@ -22,13 +22,6 @@ class PdfReader(object):
             base_dir = utils.get_base_dir_path(__file__)
         self.base_dir = base_dir
 
-    def convert_pdf_to_txt(self, input_file, output_file):
-        """Call pdf2text.py
-        :type input_file :str
-        :type output_file :str
-        """
-        subprocess.call([EXEC_CMD, '-V', '-o', str(output_file), str(input_file)])
-
     def get_pdf_dir(self, filename, suffix='.pdf'):
         """Organize input pdf path info"""
         input_full_dir_path = pathlib.Path(self.base_dir, PDF_DIR_PATH)
@@ -39,6 +32,15 @@ class PdfReader(object):
         output_full_dir_path = pathlib.Path(self.base_dir, OUTPUT_DIR_PATH)
         output_filename, _ = os.path.splitext(filename)
         return pathlib.Path(output_full_dir_path, output_filename).with_suffix(suffix)
+
+    # TODO Set classmethod regarding pdf and txt imports
+    def convert_pdf_to_txt(self, input_file, output_file):
+        """Call pdf2text.py
+        :type input_file :str
+        :type output_file :str
+        """
+        # TODO Error handle this process call
+        subprocess.call([EXEC_CMD, '-V', '-o', str(output_file), str(input_file)])
 
 
 class InputQueue(object):
