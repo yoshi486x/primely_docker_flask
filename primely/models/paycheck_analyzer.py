@@ -33,6 +33,7 @@ class QueueingModel(object):
         """Create queue of processing data while extracting filenames"""
 
         try:
+            # TODO organize InputQueue func
             inputQueue = pdf_reader.InputQueue()
             msg = 'Queue is set'
         except:
@@ -53,6 +54,8 @@ class QueueingModel(object):
             pass
 
         self.filenames = inputQueue.load_pdf_filenames()
+
+
 class TransformerModel(object):
     """Contains functions that process a paycheck object.
     Steps:
@@ -64,12 +67,12 @@ class TransformerModel(object):
         self.status = status
 
     def convert_pdf_into_text(self, filename):
+        """Utilize pdf_reader module to convert a pdf file to a text file"""
         
         pdfReader = pdf_reader.PdfReader()
         input_file = pdfReader.get_pdf_dir(filename)
         output_file = pdfReader.get_txt_dir(filename)
         pdfReader.convert_pdf_to_txt(input_file, output_file)
-        # Extract filename and txt_file, here.
 
     def convert_text_into_dict(self, filename):
         """Transform txt data to dict format"""
@@ -117,12 +120,14 @@ class TransformerModel(object):
 
 
 class FullAnalyzer(QueueingModel, TransformerModel):
+    """This is the main process of Primely which can handle multiple 
+    pdf files to iterate through all the functionalities that the 
+    Primely package ratains."""
 
     def __init__(self, speak_color='green', filenames=None):
         super().__init__()
         self.speak_color = speak_color
         self.filenames = filenames
-
 
     def starting_msg(self):
         template = console.get_template('start_proc.txt', self.speak_color)
@@ -171,6 +176,7 @@ class FullAnalyzer(QueueingModel, TransformerModel):
     @_queue_decorator
     def visualize_income_timechart(self):
         """Visualize data from json file and export a graph image """
+        # TODO: Separate dataframe formatting and exporting to image
         try:
             visual = visualizing.VisualizingModel(None)
             visual.create_base_table()
@@ -197,6 +203,7 @@ class FullAnalyzer(QueueingModel, TransformerModel):
 
     @_queue_decorator
     def ending_msg(self):
+        # TODO include filenames and each processed status in the msg
         template = console.get_template('end_proc.txt', self.speak_color)
         print(template.substitute({
             'message': 'Check data/output/graphs_and_charts for exported image!'
