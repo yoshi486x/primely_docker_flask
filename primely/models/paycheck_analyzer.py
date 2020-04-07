@@ -23,7 +23,37 @@ logger.addHandler(ch)
 # don't allow passing events to higher level loggers
 logger.propagate = False
 
-class AnalyzerModel(object):
+
+class QueueingModel(object):
+
+    def __init__(self, filenames=None):
+        self.filenames = filenames
+
+    def create_input_queue(self):
+        """Create queue of processing data while extracting filenames"""
+
+        try:
+            inputQueue = pdf_reader.InputQueue()
+            msg = 'Queue is set'
+        except:
+            self.status = 'error'
+            msg = 'Could not set queue'
+            logger.critical({
+                'status': self.status,
+                'msg': msg
+            })
+        else:
+            self.status = 'success'
+            msg = 'Queue is set'
+            logger.info({
+                'status': self.status,
+                'msg': msg
+            })
+        finally:
+            pass
+
+        self.filenames = inputQueue.load_pdf_filenames()
+class TransformerModel(object):
     """Contains functions that process a paycheck object.
     Steps:
     1. Get all pdf file name for paycheck
@@ -86,38 +116,29 @@ class AnalyzerModel(object):
         recording_model.record_data_in_json(self.dict_data)
 
 
-class FullAnalyzer(AnalyzerModel):
+class FullAnalyzer(QueueingModel, TransformerModel):
 
     def __init__(self, speak_color='green', filenames=None):
         super().__init__()
         self.speak_color = speak_color
         self.filenames = filenames
 
-    def create_input_queue(self):
-        """Create queue of processing data while extracting filenames"""
 
-        try:
-            inputQueue = pdf_reader.InputQueue()
-            msg = 'Queue is set'
-        except:
-            self.status = 'error'
-            msg = 'Could not set queue'
-            logger.critical({
-                'status': self.status,
-                'msg': msg
-            })
-        else:
-            self.status = 'success'
-            msg = 'Queue is set'
-            logger.info({
-                'status': self.status,
-                'msg': msg
-            })
-        finally:
-            pass
+    def starting_msg(self):
+        template = console.get_template('start_proc.txt', self.speak_color)
+        print(template.substitute({
+            # 'message': 'Check data/output/graphs_and_charts for exported image!'
+        }))
 
-        self.filenames = inputQueue.load_pdf_filenames()
+    def _queue_decorator(func):
+        """Decorator to set a queue if not loaded"""
+        def wrapper(self):
+            if not self.filenames:
+                self.create_input_queue()
+            return func(self)
+        return wrapper
 
+    @_queue_decorator
     def process_all_data(self):
         """Use AnalyzerModel to process all PDF data"""
         
@@ -147,6 +168,7 @@ class FullAnalyzer(AnalyzerModel):
             finally:
                 pass
 
+    @_queue_decorator
     def visualize_income_timechart(self):
         """Visualize data from json file and export a graph image """
         try:
@@ -173,8 +195,9 @@ class FullAnalyzer(AnalyzerModel):
         finally:
             pass
 
-        # TODO: Take out this func to separate function
-        template = console.get_template('process_finished.txt', self.speak_color)
+    @_queue_decorator
+    def ending_msg(self):
+        template = console.get_template('end_proc.txt', self.speak_color)
         print(template.substitute({
             'message': 'Check data/output/graphs_and_charts for exported image!'
         }))
