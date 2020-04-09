@@ -1,5 +1,3 @@
-# TODO: create graph output files if it doesn't exist
-
 import collections
 import configparser
 import json
@@ -8,7 +6,11 @@ import os
 import pandas as pd
 import pathlib
 
-from primely import utils
+# TODO uncomment out the utils and rollback line 29 and 30
+try:
+    from primely import utils
+except:
+    pass
 
 # import global parameters from config.ini
 config = configparser.ConfigParser()
@@ -20,59 +22,42 @@ INCOME_GRAPH_NAME = config['FILENAME']['GRAPH']
 PAID_DATE = 'paid_date'
 
 
-class JsonModel(object):
-    def __init__(self, filename, json_file):
-        if not json_file:
-            json_file = self.get_json_file_path(filename)
-        if not os.path.exists(json_file):
-            pathlib.Path(json_file).touch()
-        self.filename = filename
-        self.json_file = json_file
+class CollecterModel(object):
 
-
-class VisualizingModel(object):
-
-    def __init__(self, filenames, base_dir=None, dataframe=None, figure=None):
+    def __init__(self, filenames=None, base_dir=None, dataframe=None, figure=None):
         if not base_dir:
             base_dir = utils.get_base_dir_path(__file__)
+            # base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         self.base_dir = base_dir
         if not filenames:
-            filenames = self.get_json_file_path() 
+            filenames = self.get_json_filenames()
         self.filenames = filenames
         self.dataframe = dataframe
         self.figure = figure
-        self.graphs = INCOME_GRAPH_NAME
 
-    def get_json_file_path(self):
+    def get_json_filenames(self, filenames=[]):
         """Set json file path.
-        Use json path if set in settings, otherwise use default.
+        Use given json filenames if set on calls, otherwise use default.
         
-        :type filename: str
-        :rtype json_file_path: str
+        :type filenames: list
+        :rtype filenames: list
         """
-        json_file_path = None
-        try:
-            import settings
-            if settings.JSON_FILE_PATH:
-                json_file_path = settings.JSON_FILE_PATH
-        except ImportError:
-            pass
 
-        filenames = []
         json_full_dir_path = pathlib.Path(self.base_dir, JSON_DIR_PATH)
-
-        if json_file_path is None:
+        if len(filenames) == 0:
             for item in os.listdir(json_full_dir_path):
                 filenames.append(item)
         return filenames
 
+    # TODO: 20200410 Implement aws source to this func.
+    # Enable category input and process accordingly
     def create_base_table(self):
         """Create base tablefor """
         df = self.dataframe
         dataframes = []
 
         # Loop
-        """TODO: dict data loaded from json file will have some broken structures.
+        """TODO dict data loaded from json file will have some broken structures.
         In detail, values with blank space are separeted into multiple columns"""
         for filename in self.filenames:
             dates, keys, values, indexes = [], [], [], []
@@ -136,8 +121,49 @@ class VisualizingModel(object):
         df = sorting.sort_table(self.dataframe)
         self.dataframe = df
 
+
+RESPONSE_TEMPLATE = {'incomes': {}, 'deductions': {}, 'attendances': {}}
+class OrganizerModel(object):
+    def __init__(self, dataframe=None):
+        self.dataframe = dataframe
+        self.response = RESPONSE_TEMPLATE
+
+    def update_response(self, category=None):
+        # print('response:', self.response)
+        rows = {'rows': list(self.dataframe.index)}
+        columns = {'columns': list(self.dataframe.columns)}
+        # v_array = self.dataframe.to_numpy()
+        v_array = self.dataframe.values
+        values = {'values': v_array.tolist()}
+
+        # print('response:', response)
+        self.response[category].update(rows)
+        self.response[category].update(columns)
+        self.response[category].update(values)
+        # print(self.response)
+
+    def export_response_in_json(self):
+        try:
+            from primely.models import recording
+        except:
+            import recording
+        dest_info = {
+            'filename': 'paycheck_timechart.json',
+            'dir_path': config['STORAGE']['REPORT'],
+            'file_path': None
+        }
+        recording_model = recording.RecordingModel(**dest_info)
+        recording_model.record_data_in_json(self.response)
+
+
+# TODO create graph output files if it doesn't exist
+class PlotterModel(object):
+
+    def __init__(self, dataframe=None):
+        self.dataframe = dataframe
+
     def save_graph_to_image(self):
-        file_path = pathlib.Path(GRAPHS_DIR_PATH, self.graphs)
+        file_path = pathlib.Path(GRAPHS_DIR_PATH, INCOME_GRAPH_NAME)
         ax = self.dataframe.plot(
             figsize=(15, 10), kind='bar', stacked=True, grid=True, sharey=False,
             title='Income breakdown **Sample data was used for this graph**',
@@ -146,15 +172,18 @@ class VisualizingModel(object):
         fig = ax.get_figure()
         fig.savefig(file_path)
 
-
 def main():
-    visual = VisualizingModel(None)
-    print(visual.filenames)
+    visual = CollecterModel(None)
+    # print(visual.filenames)
     visual.create_base_table()
     visual.rename_columns()
     visual.sort_table()
-    visual.camouflage_values(True)
-    visual.save_graph_to_image()
+    # visual.camouflage_values(True)
+    
+    myDataframe = visual.dataframe
+
+    organizer = OrganizerModel(myDataframe)
+    organizer.update_response('incomes')
 
 
 if __name__ == "__main__":
