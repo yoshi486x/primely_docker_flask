@@ -3,7 +3,7 @@ TODO raise error when each main process fails
 TODO Separate severity of loggers for success and fails"""
 import collections
 import logging
-import pprint as pp
+import sys
 
 from primely.models import pdf_reader, recording, tailor, visualizing
 from primely.views import console
@@ -56,7 +56,7 @@ class QueueingModel(object):
         self.filenames = inputQueue.load_pdf_filenames()
 
 
-class TransformerModel(object):
+class ConverterModel(object):
     """Contains functions that process a paycheck object.
     Steps:
     1. Get all pdf file name for paycheck
@@ -119,7 +119,7 @@ class TransformerModel(object):
         recording_model.record_data_in_json(self.dict_data)
 
 
-class FullAnalyzer(QueueingModel, TransformerModel):
+class FullAnalyzer(QueueingModel, ConverterModel):
     """This is the main process of Primely which can handle multiple 
     pdf files to iterate through all the functionalities that the 
     Primely package ratains."""
@@ -144,7 +144,7 @@ class FullAnalyzer(QueueingModel, TransformerModel):
         return wrapper
 
     @_queue_decorator
-    def process_all_data(self):
+    def process_all_input_data(self):
         """Use AnalyzerModel to process all PDF data"""
         
         for j, filename in enumerate(self.filenames):
@@ -174,16 +174,15 @@ class FullAnalyzer(QueueingModel, TransformerModel):
                 pass
 
     @_queue_decorator
-    def visualize_income_timechart(self):
+    def create_dataframe_in_time_series(self):
         """Visualize data from json file and export a graph image """
         # TODO: Separate dataframe formatting and exporting to image
         try:
-            visual = visualizing.VisualizingModel(None)
+            visual = visualizing.CompoundModel()
             visual.create_base_table()
-            visual.rename_columns()
             visual.sort_table()
+            visual.rename_columns()
             visual.camouflage_values(True)
-            visual.save_graph_to_image()
         except:
             self.status = 'error'
             msg = 'Chart output failed'
@@ -200,6 +199,55 @@ class FullAnalyzer(QueueingModel, TransformerModel):
             })
         finally:
             pass
+
+        # Plot graph -------------------------------
+        try:
+            import configparser
+            config = configparser.ConfigParser()
+            config.read('config.ini')
+            if config['APP']['GRAPH_OUTPUT'] is True:
+                visual.save_graph_to_image()
+        except:
+            self.status = 'error'
+            msg = 'Plotting failed'
+            logger.info({
+                'status': self.status,
+                'msg': msg
+            })
+            print('Unexpected error:', sys.exc_info()[0])
+            raise
+        else:
+            self.status = 'success'
+            msg = 'Plotting complete'
+            logger.info({
+                'status': self.status,
+                'msg': msg
+            })
+        finally:
+            pass
+
+        # Export in a json file -------------------------------
+        # try:
+        #     import configparser
+        #     if config['APP']['GRAPH_OUTPUT'] is True:
+        #         visual.save_graph_to_image()
+        # except:
+        #     self.status = 'error'
+        #     msg = 'Plotting failed'
+        #     logger.info({
+        #         'status': self.status,
+        #         'msg': msg
+        #     })
+        # else:
+        #     self.status = 'success'
+        #     msg = 'Plotting complete'
+        #     logger.info({
+        #         'status': self.status,
+        #         'msg': msg
+        #     })
+        # finally:
+        #     pass
+
 
     @_queue_decorator
     def ending_msg(self):

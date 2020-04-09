@@ -20,48 +20,28 @@ INCOME_GRAPH_NAME = config['FILENAME']['GRAPH']
 PAID_DATE = 'paid_date'
 
 
-class JsonModel(object):
-    def __init__(self, filename, json_file):
-        if not json_file:
-            json_file = self.get_json_file_path(filename)
-        if not os.path.exists(json_file):
-            pathlib.Path(json_file).touch()
-        self.filename = filename
-        self.json_file = json_file
+class CompoundModel(object):
 
-
-class VisualizingModel(object):
-
-    def __init__(self, filenames, base_dir=None, dataframe=None, figure=None):
+    def __init__(self, filenames=None, base_dir=None, dataframe=None, figure=None):
         if not base_dir:
             base_dir = utils.get_base_dir_path(__file__)
         self.base_dir = base_dir
         if not filenames:
-            filenames = self.get_json_file_path() 
+            filenames = self.get_json_filenames()
         self.filenames = filenames
         self.dataframe = dataframe
         self.figure = figure
-        self.graphs = INCOME_GRAPH_NAME
 
-    def get_json_file_path(self):
+    def get_json_filenames(self, filenames=[]):
         """Set json file path.
-        Use json path if set in settings, otherwise use default.
+        Use given json filenames if set on calls, otherwise use default.
         
-        :type filename: str
-        :rtype json_file_path: str
+        :type filenames: list
+        :rtype filenames: list
         """
-        json_file_path = None
-        try:
-            import settings
-            if settings.JSON_FILE_PATH:
-                json_file_path = settings.JSON_FILE_PATH
-        except ImportError:
-            pass
 
-        filenames = []
         json_full_dir_path = pathlib.Path(self.base_dir, JSON_DIR_PATH)
-
-        if json_file_path is None:
+        if len(filenames) == 0:
             for item in os.listdir(json_full_dir_path):
                 filenames.append(item)
         return filenames
@@ -137,7 +117,8 @@ class VisualizingModel(object):
         self.dataframe = df
 
     def save_graph_to_image(self):
-        file_path = pathlib.Path(GRAPHS_DIR_PATH, self.graphs)
+        file_path = pathlib.Path(GRAPHS_DIR_PATH, INCOME_GRAPH_NAME)
+
         ax = self.dataframe.plot(
             figsize=(15, 10), kind='bar', stacked=True, grid=True, sharey=False,
             title='Income breakdown **Sample data was used for this graph**',
@@ -146,6 +127,20 @@ class VisualizingModel(object):
         fig = ax.get_figure()
         fig.savefig(file_path)
 
+class PlotterModel(object):
+
+    def __init__(self, dataframe=None):
+        self.dataframe = dataframe
+
+    def save_graph_to_image(self):
+        file_path = pathlib.Path(GRAPHS_DIR_PATH, INCOME_GRAPH_NAME)
+        ax = self.dataframe.plot(
+            figsize=(15, 10), kind='bar', stacked=True, grid=True, sharey=False,
+            title='Income breakdown **Sample data was used for this graph**',
+            )
+        ax.set_ylabel('amount of income [yen]')
+        fig = ax.get_figure()
+        fig.savefig(file_path)
 
 def main():
     visual = VisualizingModel(None)
