@@ -4,6 +4,7 @@ TODO Separate severity of loggers for success and fails"""
 import collections
 import logging
 import sys
+import configparser
 
 from primely.models import pdf_reader, recording, tailor, visualizing
 from primely.views import console
@@ -23,6 +24,8 @@ logger.addHandler(ch)
 # don't allow passing events to higher level loggers
 logger.propagate = False
 
+config = configparser.ConfigParser()
+config.read('config.ini')
 
 class QueueingModel(object):
 
@@ -114,8 +117,16 @@ class ConverterModel(object):
 
     def record_dict_data(self, filename):
         """Record dict_data to json files"""
-
-        recording_model = recording.RecordingModel(filename)
+        dest_info = {
+            'filename': filename,
+            'dir_path': config['STORAGE']['JSON'],
+            'file_path': None
+        }
+        dir_path = config['STORAGE']['JSON']
+        # print('dir_path:', dir_path)
+        file_path = None 
+        # recording_model = recording.RecordingModel(filename, file_path, dir_path)
+        recording_model = recording.RecordingModel(**dest_info)
         recording_model.record_data_in_json(self.dict_data)
 
 
@@ -161,6 +172,7 @@ class FullAnalyzer(QueueingModel, ConverterModel):
                     'filename': filename,
                     'msg': msg
                 })
+                raise
             else:
                 self.status = 'success'
                 msg = ''
@@ -178,11 +190,13 @@ class FullAnalyzer(QueueingModel, ConverterModel):
         """Visualize data from json file and export a graph image """
         # TODO: Separate dataframe formatting and exporting to image
         try:
-            visual = visualizing.CompoundModel()
+            visual = visualizing.CollecterModel()
             visual.create_base_table()
             visual.sort_table()
             visual.rename_columns()
             visual.camouflage_values(True)
+            myDataframe = visual.dataframe
+            # print(myDataframe)
         except:
             self.status = 'error'
             msg = 'Chart output failed'
@@ -200,13 +214,34 @@ class FullAnalyzer(QueueingModel, ConverterModel):
         finally:
             pass
 
+        # Export to a json file -------------------------------
+        try:
+            # TODO Do something with this incomes table 
+            organizer = visualizing.OrganizerModel(myDataframe)
+            organizer.update_response('incomes')
+            organizer.export_response_in_json()
+        except:
+            self.status = 'error'
+            msg = 'Json export failed'
+            logger.info({
+                'status': self.status,
+                'msg': msg
+            })
+        else:
+            self.status = 'success'
+            msg = 'Json export complete'
+            logger.info({
+                'status': self.status,
+                'msg': msg
+            })
+        finally:
+            pass
+
         # Plot graph -------------------------------
         try:
-            import configparser
-            config = configparser.ConfigParser()
-            config.read('config.ini')
-            if config['APP']['GRAPH_OUTPUT'] is True:
-                visual.save_graph_to_image()
+            if config['APP'].getboolean('GRAPH_OUTPUT'):
+                plotter = visualizing.PlotterModel(myDataframe)
+                plotter.save_graph_to_image()
         except:
             self.status = 'error'
             msg = 'Plotting failed'
@@ -225,28 +260,6 @@ class FullAnalyzer(QueueingModel, ConverterModel):
             })
         finally:
             pass
-
-        # Export in a json file -------------------------------
-        # try:
-        #     import configparser
-        #     if config['APP']['GRAPH_OUTPUT'] is True:
-        #         visual.save_graph_to_image()
-        # except:
-        #     self.status = 'error'
-        #     msg = 'Plotting failed'
-        #     logger.info({
-        #         'status': self.status,
-        #         'msg': msg
-        #     })
-        # else:
-        #     self.status = 'success'
-        #     msg = 'Plotting complete'
-        #     logger.info({
-        #         'status': self.status,
-        #         'msg': msg
-        #     })
-        # finally:
-        #     pass
 
 
     @_queue_decorator
