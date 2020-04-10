@@ -135,10 +135,11 @@ class FullAnalyzer(QueueingModel, ConverterModel):
     pdf files to iterate through all the functionalities that the 
     Primely package ratains."""
 
-    def __init__(self, speak_color='green', filenames=None):
+    def __init__(self, speak_color='green', filenames=None, dataframe=None):
         super().__init__()
         self.speak_color = speak_color
         self.filenames = filenames
+        self.dataframe = dataframe
 
     def starting_msg(self):
         template = console.get_template('start_proc.txt', self.speak_color)
@@ -188,15 +189,15 @@ class FullAnalyzer(QueueingModel, ConverterModel):
     @_queue_decorator
     def create_dataframe_in_time_series(self):
         """Visualize data from json file and export a graph image """
-        # TODO: Separate dataframe formatting and exporting to image
+        # TODO: Implement sorting, renaming, camouflaging (0/3)
         try:
-            visual = visualizing.CollecterModel()
-            visual.create_base_table()
-            visual.sort_table()
-            visual.rename_columns()
-            visual.camouflage_values(True)
-            myDataframe = visual.dataframe
-            # print(myDataframe)
+            visual = visualizing.DataframeFactory()
+            visual.classify_json_data_in_categories(visual.categories)
+            # visual.sort_table()
+            # visual.rename_columns()
+            # visual.camouflage_values(True)
+            self.dataframe = visual.category_dataframe
+            # print(self.dataframe)
         except:
             self.status = 'error'
             msg = 'Chart output failed'
@@ -214,12 +215,15 @@ class FullAnalyzer(QueueingModel, ConverterModel):
         finally:
             pass
 
-        # Export to a json file -------------------------------
+    @_queue_decorator
+    def get_packaged_paycheck_series(self):
+        """
+        1. Package 3 categories of dataframes in the hash table (self.dataframe)
+        2. Get the Package
+        """
         try:
-            # TODO Do something with this incomes table 
-            organizer = visualizing.OrganizerModel(myDataframe)
-            organizer.update_response('incomes')
-            organizer.export_response_in_json()
+            organizer = visualizing.OrganizerModel(**self.dataframe)
+            organizer.trigger_update_event()
         except:
             self.status = 'error'
             msg = 'Json export failed'
@@ -227,6 +231,7 @@ class FullAnalyzer(QueueingModel, ConverterModel):
                 'status': self.status,
                 'msg': msg
             })
+            raise
         else:
             self.status = 'success'
             msg = 'Json export complete'
@@ -235,12 +240,24 @@ class FullAnalyzer(QueueingModel, ConverterModel):
                 'msg': msg
             })
         finally:
-            pass
+            return organizer.get_response()
 
-        # Plot graph -------------------------------
+    def export_in_jsonfile(self, response):
+        """Export api response of this whole package in a json file"""
+
+        dest_info = {
+            'filename': 'paycheck_timechart.json',
+            'dir_path': config['STORAGE']['REPORT'],
+            'file_path': None
+        }
+        recording_model = recording.RecordingModel(**dest_info)
+        recording_model.record_data_in_json(response)
+
+    def export_income_timeline(self):
+        # Plot graph and save in a image -------------------------------
         try:
             if config['APP'].getboolean('GRAPH_OUTPUT'):
-                plotter = visualizing.PlotterModel(myDataframe)
+                plotter = visualizing.PlotterModel(self.dataframe)
                 plotter.save_graph_to_image()
         except:
             self.status = 'error'
@@ -260,7 +277,6 @@ class FullAnalyzer(QueueingModel, ConverterModel):
             })
         finally:
             pass
-
 
     @_queue_decorator
     def ending_msg(self):
