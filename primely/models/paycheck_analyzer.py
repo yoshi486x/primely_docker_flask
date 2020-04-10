@@ -189,7 +189,7 @@ class FullAnalyzer(QueueingModel, ConverterModel):
     @_queue_decorator
     def create_dataframe_in_time_series(self):
         """Visualize data from json file and export a graph image """
-        # TODO: Separate dataframe formatting and exporting to image
+        # TODO: Implement sorting, renaming, camouflaging (0/3)
         try:
             visual = visualizing.DataframeFactory()
             visual.classify_json_data_in_categories(visual.categories)
@@ -217,14 +217,13 @@ class FullAnalyzer(QueueingModel, ConverterModel):
 
     @_queue_decorator
     def get_packaged_paycheck_series(self):
-        # Export to a json file -------------------------------
+        """
+        1. Package 3 categories of dataframes in the hash table (self.dataframe)
+        2. Get the Package
+        """
         try:
-            # TODO Do something with this incomes table 
             organizer = visualizing.OrganizerModel(**self.dataframe)
-            # organizer = visualizing.OrganizerModel(**visual.category_dataframe)
             organizer.trigger_update_event()
-            
-            # organizer.export_response_in_json()
         except:
             self.status = 'error'
             msg = 'Json export failed'
@@ -244,6 +243,8 @@ class FullAnalyzer(QueueingModel, ConverterModel):
             return organizer.get_response()
 
     def export_in_jsonfile(self, response):
+        """Export api response of this whole package in a json file"""
+
         dest_info = {
             'filename': 'paycheck_timechart.json',
             'dir_path': config['STORAGE']['REPORT'],
@@ -253,7 +254,7 @@ class FullAnalyzer(QueueingModel, ConverterModel):
         recording_model.record_data_in_json(response)
 
     def export_income_timeline(self):
-        # Plot graph -------------------------------
+        # Plot graph and save in a image -------------------------------
         try:
             if config['APP'].getboolean('GRAPH_OUTPUT'):
                 plotter = visualizing.PlotterModel(self.dataframe)
