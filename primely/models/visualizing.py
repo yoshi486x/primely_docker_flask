@@ -21,19 +21,26 @@ INCOME_GRAPH_NAME = config['FILENAME']['GRAPH']
 
 PAID_DATE = 'paid_date'
 
+class JsonLoaderModel(object):
+    def __init__(self, filename, dict_data=None):
+        if not dict_data:
+            dict_data = self._get_dict_data(filename)
+        self.dict_data = dict_data
 
-class CollecterModel(object):
+    def _get_dict_data(self, filename):
+        file_path = pathlib.Path(JSON_DIR_PATH, filename)
+        with open(file_path, 'r') as json_file:
+            return json.load(json_file)
 
-    def __init__(self, filenames=None, base_dir=None, dataframe=None, figure=None):
+class CreateTimechartModel(object):
+    def __init__(self, base_dir=None, filenames=None):
         if not base_dir:
-            base_dir = utils.get_base_dir_path(__file__)
-            # base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            # base_dir = utils.get_base_dir_path(__file__)
+            base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         self.base_dir = base_dir
         if not filenames:
             filenames = self.get_json_filenames()
         self.filenames = filenames
-        self.dataframe = dataframe
-        self.figure = figure
 
     def get_json_filenames(self, filenames=[]):
         """Set json file path.
@@ -49,9 +56,12 @@ class CollecterModel(object):
                 filenames.append(item)
         return filenames
 
-    # TODO: 20200410 Implement aws source to this func.
-    # Enable category input and process accordingly
-    def create_base_table(self):
+
+class CreateBaseTable(object):
+    def __init__(self, dataframe=None):
+        self.dataframe = dataframe
+
+    def create_base_table(self, category):
         """Create base tablefor """
         df = self.dataframe
         dataframes = []
@@ -62,31 +72,51 @@ class CollecterModel(object):
         for filename in self.filenames:
             dates, keys, values, indexes = [], [], [], []
 
-            file_path = pathlib.Path(JSON_DIR_PATH, filename)
-            with open(file_path, 'r') as json_file:
-                # data = json.load(json_file)
-                dict_data = json.load(json_file)
-            
-            """Exclude table name from json file"""
-            # for key in data.keys():
-            #     name = key
-            # dict_data = data[name].pop()
+            # file_path = pathlib.Path(JSON_DIR_PATH, filename)
+            # with open(file_path, 'r') as json_file:
+            #     dict_data = json.load(json_file)
+            json_loader = JsonLoaderModel(filename)
+            dict_data = json_loader.dict_data
 
             """Single key extraction"""
             dates, keys, values = [], [], []
             date = dict_data[PAID_DATE]
-            for key, value in dict_data['incomes'].items():
+            for key, value in dict_data[category].items():
                 values.append(value)
                 keys.append(key)
                 dates.append(date)
-            df = pd.DataFrame({'date': dates, 'type': keys, 'income': values})
+            df = pd.DataFrame({'date': dates, 'type': keys, 'value': values})
             dataframes.append(df)
 
         # Combine tables of each json file
         df = pd.concat(dataframes)
-        table = pd.pivot_table(df, index='date', columns='type', values='income', fill_value=0)
-        
+        # print(df)
+        # table = pd.pivot_table(df, index='date', columns='type', values='income', fill_value=0)
+        table = pd.pivot_table(df, index='type', columns='date', values='value', fill_value=0)
+        # print(table)
         self.dataframe = table
+        return self.dataframe
+
+RES = {'incomes': None, 'deductions': None, 'attendances': None}
+class DataframeFactory(CreateTimechartModel, CreateBaseTable):
+    def __init__(self, categories=['incomes', 'deductions', 'attendances'],
+            dataframeList=[], category_dataframe={'incomes': None, 'deductions': None, 'attendances': None}):
+        CreateTimechartModel.__init__(self)
+        CreateBaseTable.__init__(self)
+        self.categories = categories
+        self.dataframeList = dataframeList
+        self.category_dataframe = category_dataframe
+
+    def classify_json_data_in_categories(self, categories=None):
+
+        # for category in categories:
+        #     self.create_base_table(category)
+        #     self.dataframeList.append(self.dataframe)
+        for category, dataframe in self.category_dataframe.items():
+            df = self.create_base_table(category)
+            self.category_dataframe[category] = df
+            # print(self.dataframe)
+        # print(self.category_dataframe)
 
     def rename_columns(self):
         renames = ['Alfa', 'Bravo', 'Charlie', 'Delta', 'Echo', 'Foxtrot',
@@ -124,16 +154,21 @@ class CollecterModel(object):
 
 RESPONSE_TEMPLATE = {'incomes': {}, 'deductions': {}, 'attendances': {}}
 class OrganizerModel(object):
-    def __init__(self, dataframe=None):
+    def __init__(self, dataframe=None, *args, **kwargs):
         self.dataframe = dataframe
+        self.request = kwargs
         self.response = RESPONSE_TEMPLATE
 
-    def update_response(self, category=None):
+    def trigger_update_event(self):
+        for category, dataframe in self.request.items():
+            self.update_response(category, dataframe)
+    
+    def update_response(self, category, dataframe):
         # print('response:', self.response)
-        rows = {'rows': list(self.dataframe.index)}
-        columns = {'columns': list(self.dataframe.columns)}
+        rows = {'rows': list(dataframe.index)}
+        columns = {'columns': list(dataframe.columns)}
         # v_array = self.dataframe.to_numpy()
-        v_array = self.dataframe.values
+        v_array = dataframe.values
         values = {'values': v_array.tolist()}
 
         # print('response:', response)
@@ -142,7 +177,10 @@ class OrganizerModel(object):
         self.response[category].update(values)
         # print(self.response)
 
-    def export_response_in_json(self):
+    def get_response(self):
+        return self.response
+
+    def export_response_in_json(self, response=None):
         try:
             from primely.models import recording
         except:
@@ -153,7 +191,7 @@ class OrganizerModel(object):
             'file_path': None
         }
         recording_model = recording.RecordingModel(**dest_info)
-        recording_model.record_data_in_json(self.response)
+        recording_model.record_data_in_json(response)
 
 
 # TODO create graph output files if it doesn't exist
@@ -173,18 +211,24 @@ class PlotterModel(object):
         fig.savefig(file_path)
 
 def main():
-    visual = CollecterModel(None)
-    # print(visual.filenames)
-    visual.create_base_table()
-    visual.rename_columns()
-    visual.sort_table()
+    categories = ['incomes', 'deductions', 'attendances']
+    visual = DataframeFactory()
+    visual.classify_json_data_in_categories(visual.categories)
+    
+    # visual.create_base_table()
+    # visual.rename_columns()
+    # visual.sort_table()
     # visual.camouflage_values(True)
     
-    myDataframe = visual.dataframe
+    # myDataframe = visual.dataframe
 
-    organizer = OrganizerModel(myDataframe)
-    organizer.update_response('incomes')
+    organizer = OrganizerModel(**visual.category_dataframe)
+    organizer.trigger_update_event()
+    organizer.export_response_in_json()
 
+    # df = visual.dataframe
+    # plotter = PlotterModel(df)
+    # plotter.save_graph_to_image()
 
 if __name__ == "__main__":
     main()
