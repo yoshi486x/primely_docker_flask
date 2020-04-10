@@ -3,7 +3,8 @@ TODO raise error when each main process fails
 TODO Separate severity of loggers for success and fails"""
 import collections
 import logging
-import pprint as pp
+import sys
+import configparser
 
 from primely.models import pdf_reader, recording, tailor, visualizing
 from primely.views import console
@@ -23,6 +24,8 @@ logger.addHandler(ch)
 # don't allow passing events to higher level loggers
 logger.propagate = False
 
+config = configparser.ConfigParser()
+config.read('config.ini')
 
 class QueueingModel(object):
 
@@ -56,7 +59,7 @@ class QueueingModel(object):
         self.filenames = inputQueue.load_pdf_filenames()
 
 
-class TransformerModel(object):
+class ConverterModel(object):
     """Contains functions that process a paycheck object.
     Steps:
     1. Get all pdf file name for paycheck
@@ -114,20 +117,29 @@ class TransformerModel(object):
 
     def record_dict_data(self, filename):
         """Record dict_data to json files"""
-
-        recording_model = recording.RecordingModel(filename)
+        dest_info = {
+            'filename': filename,
+            'dir_path': config['STORAGE']['JSON'],
+            'file_path': None
+        }
+        dir_path = config['STORAGE']['JSON']
+        # print('dir_path:', dir_path)
+        file_path = None 
+        # recording_model = recording.RecordingModel(filename, file_path, dir_path)
+        recording_model = recording.RecordingModel(**dest_info)
         recording_model.record_data_in_json(self.dict_data)
 
 
-class FullAnalyzer(QueueingModel, TransformerModel):
+class FullAnalyzer(QueueingModel, ConverterModel):
     """This is the main process of Primely which can handle multiple 
     pdf files to iterate through all the functionalities that the 
     Primely package ratains."""
 
-    def __init__(self, speak_color='green', filenames=None):
+    def __init__(self, speak_color='green', filenames=None, dataframe=None):
         super().__init__()
         self.speak_color = speak_color
         self.filenames = filenames
+        self.dataframe = dataframe
 
     def starting_msg(self):
         template = console.get_template('start_proc.txt', self.speak_color)
@@ -144,7 +156,7 @@ class FullAnalyzer(QueueingModel, TransformerModel):
         return wrapper
 
     @_queue_decorator
-    def process_all_data(self):
+    def process_all_input_data(self):
         """Use AnalyzerModel to process all PDF data"""
         
         for j, filename in enumerate(self.filenames):
@@ -161,6 +173,7 @@ class FullAnalyzer(QueueingModel, TransformerModel):
                     'filename': filename,
                     'msg': msg
                 })
+                raise
             else:
                 self.status = 'success'
                 msg = ''
@@ -174,16 +187,17 @@ class FullAnalyzer(QueueingModel, TransformerModel):
                 pass
 
     @_queue_decorator
-    def visualize_income_timechart(self):
+    def create_dataframe_in_time_series(self):
         """Visualize data from json file and export a graph image """
-        # TODO: Separate dataframe formatting and exporting to image
+        # TODO: Implement sorting, renaming, camouflaging (0/3)
         try:
-            visual = visualizing.VisualizingModel(None)
-            visual.create_base_table()
-            visual.rename_columns()
-            visual.sort_table()
-            visual.camouflage_values(True)
-            visual.save_graph_to_image()
+            visual = visualizing.DataframeFactory()
+            visual.classify_json_data_in_categories(visual.categories)
+            # visual.sort_table()
+            # visual.rename_columns()
+            # visual.camouflage_values(True)
+            self.dataframe = visual.category_dataframe
+            # print(self.dataframe)
         except:
             self.status = 'error'
             msg = 'Chart output failed'
@@ -194,6 +208,69 @@ class FullAnalyzer(QueueingModel, TransformerModel):
         else:
             self.status = 'success'
             msg = 'Chart output complete'
+            logger.info({
+                'status': self.status,
+                'msg': msg
+            })
+        finally:
+            pass
+
+    @_queue_decorator
+    def get_packaged_paycheck_series(self):
+        """
+        1. Package 3 categories of dataframes in the hash table (self.dataframe)
+        2. Get the Package
+        """
+        try:
+            organizer = visualizing.OrganizerModel(**self.dataframe)
+            organizer.trigger_update_event()
+        except:
+            self.status = 'error'
+            msg = 'Json export failed'
+            logger.info({
+                'status': self.status,
+                'msg': msg
+            })
+            raise
+        else:
+            self.status = 'success'
+            msg = 'Json export complete'
+            logger.info({
+                'status': self.status,
+                'msg': msg
+            })
+        finally:
+            return organizer.get_response()
+
+    def export_in_jsonfile(self, response):
+        """Export api response of this whole package in a json file"""
+
+        dest_info = {
+            'filename': 'paycheck_timechart.json',
+            'dir_path': config['STORAGE']['REPORT'],
+            'file_path': None
+        }
+        recording_model = recording.RecordingModel(**dest_info)
+        recording_model.record_data_in_json(response)
+
+    def export_income_timeline(self):
+        # Plot graph and save in a image -------------------------------
+        try:
+            if config['APP'].getboolean('GRAPH_OUTPUT'):
+                plotter = visualizing.PlotterModel(self.dataframe)
+                plotter.save_graph_to_image()
+        except:
+            self.status = 'error'
+            msg = 'Plotting failed'
+            logger.info({
+                'status': self.status,
+                'msg': msg
+            })
+            print('Unexpected error:', sys.exc_info()[0])
+            raise
+        else:
+            self.status = 'success'
+            msg = 'Plotting complete'
             logger.info({
                 'status': self.status,
                 'msg': msg

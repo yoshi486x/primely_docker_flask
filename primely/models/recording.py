@@ -4,21 +4,18 @@ import json
 import os
 import pathlib
 
-# import global parameters from config.ini
-config = configparser.ConfigParser()
-config.read('config.ini')
-JSON_DIR_PATH = config['STORAGE']['JSON']
 
 class JsonModel(object):
-    def __init__(self, filename, json_file):
-        if not json_file:
-            json_file = self.get_json_file_path(filename)
-        if not os.path.exists(json_file):
-            pathlib.Path(json_file).touch()
-        self.filename = filename
-        self.json_file = json_file
 
-    def get_json_file_path(self, filename):
+    def __init__(self, *args, **kwargs):
+        if not kwargs['file_path']:
+            # Get kwargs from config and update dict
+            kwargs = self.get_json_file_path(**kwargs)
+        if not os.path.exists(kwargs['file_path']):
+            pathlib.Path(kwargs['dir_path']).touch()
+        self.dest_info = kwargs
+
+    def get_json_file_path(self, **kwargs):
         """Set json file path.
         Use json path if set in settings, otherwise use default.
         
@@ -34,25 +31,33 @@ class JsonModel(object):
             pass
 
         if not json_file_path:
-            json_file_path = pathlib.Path(JSON_DIR_PATH, filename).with_suffix('.json')
-        return json_file_path
+            kwargs['file_path'] = pathlib.Path(kwargs['dir_path'], kwargs['filename']).with_suffix('.json')
+        return kwargs
 
 
 class RecordingModel(JsonModel):
-    """Definition of class that generates ranking model"""
+    # TODO Write header doc more cleary
+    """Definition of class that generates ranking model
+    :type dest_info: dict
+    :rtype: None
 
-    def __init__(self, filename, json_file=None, db=None):
-        JsonModel.__init__(self, filename, json_file)
+    dest_info = {
+            'filename': filename,
+            'dir_path': config['STORAGE']['JSON'],
+            'file_path': None
+        }
+    """
+
+    def __init__(self, *args, **kwargs):
+        JsonModel.__init__(self, **kwargs)
 
     def record_data_in_json(self, stack):
         """Export dict_data in json format"""
 
         data_json = json.dumps(stack, ensure_ascii=False, indent=4)
-        with open(self.json_file, 'w') as json_file:
-            json_file.write(data_json)
+        with open(self.dest_info['file_path'], 'w') as file_path:
+            file_path.write(data_json)
 
-def main(data):
-    pass
 
 if __name__ == "__main__":
-    main()
+    pass
