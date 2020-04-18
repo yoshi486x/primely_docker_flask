@@ -1,24 +1,17 @@
-# PaycheckGraph
+# Primely Package
 
 <!-- ##### Analyse your paycheck -->
 
 [![Generic badge](https://img.shields.io/badge/python-v3.7.4-336E9F.svg)](https://shields.io/)
-[![Generic badge](https://img.shields.io/badge/MongoDB-v4.2.3-14AA52.svg)](https://shields.io/)
 
 <!-- ![Theme image](demo/output/income_timechart.png) -->
-![Theme image](images/income_timechart.jpg)
-
-## Roadmap
-* [v1.0.0] Export paycheck data to graph image. 
-* [v1.1.0] Store data to MySQL. 
-* [v1.2.0] Visualize paycheck data using Grafana.
-* [new] Create iOS App version. 
+![Theme image](images/primely_package.jpg)
 
 ## Getting Started
 <!-- TODO: Update below dates every time you commit!  -->
-**Update(March 1, 2020)**: Paycheck at where I work is published by a PDF file. Just reading them, might be enough for checking errors, but do you not want to see *trends* over time?
+**Update(April 18, 2020)**: Paycheck at where I work is published by a PDF file. Just reading them, might be enough for checking errors, but do you not want to see *trends* over time?
 
-This package creates statical graphs of your paycheck! Download it and try putting your pdf file in the suggested folder where instructed below.
+This package can provide a json response where a series of paychecks are organized and stored in one file. Download and try putting your pdf file in the suggested folder where instructed below.
 
 ### Prerequisites
 * Paycheck downloaded (in pdf format). 
@@ -26,19 +19,35 @@ This package creates statical graphs of your paycheck! Download it and try putti
 
 
 ### Installing
-Install MongoDB to your local environment.
-<br>
->See
-[The Official MongoDB Software Homebrew Tap](https://github.com/mongodb/homebrew-brew).
+There's two way you could use this package.
+1. Git clone this repository.
+2. Extract from tarball.
 
-Git clone this repository.
+#### 1. Git clone
+Git clone this package.
 ```bash
-$ git clone https://github.com/yoshiki-o0/paycheck_graph.git
+$ git clone https://github.com/yoshiki-o0/primely_package.git
 ```
 
-Pip install *requirements.txt*.
+Move to the home directory of the package.
+
+Install dependent packages.
 ```bash
 $ pip install requirements.txt
+```
+
+
+#### 2. Extract from tarball
+Download tarball from `primely_package/dist/<package_name>`.
+
+Move to the work directory where tarball is set.
+```bash
+$ cd <path_to_work_dir>
+```
+
+Extract the package.
+```bash
+$ tar -zxvf <package_name>
 ```
 
 ## Running the test
@@ -47,18 +56,16 @@ Set your pdf files at `data/pdf`.
 
 Run <br>
 ```bash
-$ python main.py
+$ python <package_home_dir_path>/main.py
 ```
-Follow the dialog accordingly.
-![Post image](images/dialog_example.jpg)
 
-### Check your graph
-If the application runs successfully, the graph would be outputted at `data/output/graphs_and_charts`.
+
+### Check your json
+If the process completes successfully, the json response could be checked at `data/output/report/paycheck_timechart.json`.
 
 
 ## Built With
 * [pdfminor.six](https://github.com/pdfminer/pdfminer.six) - Used to extract text from pdf files.
-* [MongoDB](https://github.com/mongodb/mongo) - Database used.
 
 ## Polished With
 * pepe8, flake8, (Comming soon) pylint
