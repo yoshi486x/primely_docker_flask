@@ -72,4 +72,4 @@ If the process completes successfully, the json response could be checked at `da
 * (Comming soon) Unittest
 
 ## Licence
-PaycheckGraph is freely available for free non-commercial use and may be redistributed under conditions. Please, see the licence for further details.
+Primely is freely available for free non-commercial use and may be redistributed under conditions. Please, see the licence for further details.
