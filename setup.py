@@ -22,7 +22,6 @@ setup(
     url='https://github.com/yoshiki-o0/primely_package',
     lincense='LICENCE',
     # package_dir={'': 'primely'},
-    # packages=find_packages(exclude=['data', 'docs', 'images', 'tests']),
     # packages=find_packages(),
     packages=[
         'primely.controller',
