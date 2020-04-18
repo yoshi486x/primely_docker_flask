@@ -5,7 +5,7 @@
 [![Generic badge](https://img.shields.io/badge/python-v3.7.4-336E9F.svg)](https://shields.io/)
 
 <!-- ![Theme image](demo/output/income_timechart.png) -->
-![Theme image](images/primely_package.jpg)
+![Theme image](images/primely_package.png)
 
 ## Getting Started
 <!-- TODO: Update below dates every time you commit!  -->
