@@ -73,9 +73,9 @@ class ConverterModel(object):
         """Utilize pdf_reader module to convert a pdf file to a text file"""
         
         pdfReader = pdf_reader.PdfReader()
-        input_file = pdfReader.get_pdf_dir(filename)
-        output_file = pdfReader.get_txt_dir(filename)
-        pdfReader.convert_pdf_to_txt(input_file, output_file)
+        input_file_path = pdfReader.get_pdf_dir(filename)
+        output_file_path = pdfReader.get_txt_dir(filename)
+        pdfReader.convert_pdf_to_txt(input_file_path, output_file_path)
 
     def convert_text_into_dict(self, filename):
         """Transform txt data to dict format"""

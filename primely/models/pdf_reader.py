@@ -24,14 +24,14 @@ class PdfReader(object):
 
     def get_pdf_dir(self, filename, suffix='.pdf'):
         """Organize input pdf path info"""
+        # print('filename:', filename)
         input_full_dir_path = pathlib.Path(self.base_dir, PDF_DIR_PATH)
         return pathlib.Path(input_full_dir_path, filename).with_suffix(suffix)
 
     def get_txt_dir(self, filename, suffix='.txt'):
         """Organize output txt path info"""
         output_full_dir_path = pathlib.Path(self.base_dir, OUTPUT_DIR_PATH)
-        output_filename, _ = os.path.splitext(filename)
-        return pathlib.Path(output_full_dir_path, output_filename).with_suffix(suffix)
+        return pathlib.Path(output_full_dir_path, filename).with_suffix(suffix)
 
     # TODO Set classmethod regarding pdf and txt imports
     def convert_pdf_to_txt(self, input_file, output_file):
@@ -40,7 +40,12 @@ class PdfReader(object):
         :type output_file :str
         """
         # TODO Error handle this process call
-        subprocess.call([EXEC_CMD, '-V', '-o', str(output_file), str(input_file)])
+        try:
+            subprocess.call([EXEC_CMD, '-V', '-o', str(output_file), str(input_file)])
+        except:
+            raise
+
+        return 'success'
 
 
 class InputQueue(object):
