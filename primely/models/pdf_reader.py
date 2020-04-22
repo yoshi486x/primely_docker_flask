@@ -5,7 +5,7 @@ import pathlib
 import subprocess
 import sys
 
-from primely import utils
+from primely.views import utils
 
 # import global parameters from config.ini
 config = configparser.ConfigParser()
@@ -24,14 +24,14 @@ class PdfReader(object):
 
     def get_pdf_dir(self, filename, suffix='.pdf'):
         """Organize input pdf path info"""
+        # print('filename:', filename)
         input_full_dir_path = pathlib.Path(self.base_dir, PDF_DIR_PATH)
         return pathlib.Path(input_full_dir_path, filename).with_suffix(suffix)
 
     def get_txt_dir(self, filename, suffix='.txt'):
         """Organize output txt path info"""
         output_full_dir_path = pathlib.Path(self.base_dir, OUTPUT_DIR_PATH)
-        output_filename, _ = os.path.splitext(filename)
-        return pathlib.Path(output_full_dir_path, output_filename).with_suffix(suffix)
+        return pathlib.Path(output_full_dir_path, filename).with_suffix(suffix)
 
     # TODO Set classmethod regarding pdf and txt imports
     def convert_pdf_to_txt(self, input_file, output_file):
@@ -40,29 +40,12 @@ class PdfReader(object):
         :type output_file :str
         """
         # TODO Error handle this process call
-        subprocess.call([EXEC_CMD, '-V', '-o', str(output_file), str(input_file)])
+        try:
+            subprocess.call([EXEC_CMD, '-V', '-o', str(output_file), str(input_file)])
+        except:
+            raise
 
-
-class InputQueue(object):
-    def __init__(self, base_dir=None, all_files=None, pdf_files=None):
-        if not base_dir:
-            base_dir = utils.get_base_dir_path(__file__)
-        self.base_dir = base_dir
-        self.all_files = all_files
-        self.pdf_files = pdf_files
-    
-    def load_pdf_filenames(self, all_files=list):
-        """List all pdf files in designated directory"""
-        all_files = []
-        pdf_full_dir_path = pathlib.Path(self.base_dir, PDF_DIR_PATH)
-        self.pdf_files = os.listdir(pdf_full_dir_path)
-
-        # Extract filename without suffix
-        for item in os.listdir(pdf_full_dir_path):
-            filename, _ = os.path.splitext(item)
-            all_files.append(filename)
-        self.all_files = sorted(all_files)
-        return self.all_files
+        return 'success'
 
 
 def main():

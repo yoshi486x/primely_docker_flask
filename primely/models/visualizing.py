@@ -8,7 +8,7 @@ import pathlib
 
 # TODO uncomment out the utils and rollback line 29 and 30
 try:
-    from primely import utils
+    from primely.views import utils
 except:
     pass
 
@@ -39,10 +39,10 @@ class CreateTimechartModel(object):
             # base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         self.base_dir = base_dir
         if not filenames:
-            filenames = self.get_json_filenames()
+            filenames = self._get_json_filenames()
         self.filenames = filenames
 
-    def get_json_filenames(self, filenames=[]):
+    def _get_json_filenames(self, filenames=[]):
         """Set json file path.
         Use given json filenames if set on calls, otherwise use default.
         
