@@ -8,7 +8,7 @@ import re
 import pprint
 pp = pprint.PrettyPrinter(indent=2)
 
-from primely import utils
+from primely.views import utils
 
 # import global parameters from config.ini
 config = configparser.ConfigParser()

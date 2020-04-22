@@ -8,7 +8,7 @@ import pathlib
 
 # TODO uncomment out the utils and rollback line 29 and 30
 try:
-    from primely import utils
+    from primely.views import utils
 except:
     pass
 

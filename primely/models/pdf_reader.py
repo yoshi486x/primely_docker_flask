@@ -5,7 +5,7 @@ import pathlib
 import subprocess
 import sys
 
-from primely import utils
+from primely.views import utils
 
 # import global parameters from config.ini
 config = configparser.ConfigParser()
