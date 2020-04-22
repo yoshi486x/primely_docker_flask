@@ -6,7 +6,7 @@ import logging
 import sys
 import configparser
 
-from primely.models import pdf_reader, recording, tailor, visualizing
+from primely.models import pdf_reader, queueing, recording, tailor, visualizing
 from primely.views import console
 
 # create logger with '__name__'
@@ -37,7 +37,7 @@ class QueueingModel(object):
 
         try:
             # TODO organize InputQueue func
-            inputQueue = pdf_reader.InputQueue()
+            input_queue = queueing.InputQueue()
             msg = 'Queue is set'
         except:
             self.status = 'error'
@@ -56,7 +56,7 @@ class QueueingModel(object):
         finally:
             pass
 
-        self.filenames = inputQueue.load_pdf_filenames()
+        self.filenames = input_queue.load_pdf_filenames()
 
 
 class ConverterModel(object):
