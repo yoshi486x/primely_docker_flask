@@ -6,7 +6,7 @@ import logging
 import sys
 import configparser
 
-from primely.models import pdf_reader, queueing, recording, tailor, visualizing
+from primely.models import pdf_converter, queueing, recording, txt_converter, visualizing
 from primely.views import console
 
 # create logger with '__name__'
@@ -71,27 +71,27 @@ class ConverterModel(object):
         self.response = collections.defaultdict()
 
     def convert_pdf_into_text(self):
-        """Utilize pdf_reader module to convert a pdf file to a text file"""
+        """Utilize pdf_converter module to convert a pdf file to a text file"""
         
-        convert_pdf = pdf_reader.PdfReader(self.filename)
-        input_file_path = convert_pdf.get_pdf_dir()
-        output_file_path = convert_pdf.get_txt_dir()
-        convert_pdf.convert_pdf_to_txt(input_file_path, output_file_path)
+        self.pdf_converter = pdf_converter.PdfReader(self.filename)
+        input_file_path = self.pdf_converter.get_pdf_dir()
+        output_file_path = self.pdf_converter.get_txt_dir()
+        self.pdf_converter.convert_pdf_to_txt(input_file_path, output_file_path)
 
     def convert_text_into_dict(self):
         """Transform txt data to dict format"""
 
         try:
-            txt_converter = tailor.PartitionerModel()
-            txt_converter.load_data(self.filename)
-            txt_converter.value_format_digit()
-            txt_converter.define_partitions()
-            txt_converter.partition_data()
-            txt_converter.self_correlate_block1()
-            txt_converter.self_correlate_block2()
-            txt_converter.value_format_date()
-            txt_converter.value_format_deductions()
-            txt_converter.value_format_remove_dot_in_keys()
+            self.txt_converter = txt_converter.PartitionerModel()
+            self.txt_converter.load_data(self.filename)
+            self.txt_converter.value_format_digit()
+            self.txt_converter.define_partitions()
+            self.txt_converter.partition_data()
+            self.txt_converter.self_correlate_block1()
+            self.txt_converter.self_correlate_block2()
+            self.txt_converter.value_format_date()
+            self.txt_converter.value_format_deductions()
+            self.txt_converter.value_format_remove_dot_in_keys()
         except:
             self.status = 'error'
             msg = 'Could not complete text transformation process'
@@ -109,8 +109,8 @@ class ConverterModel(object):
         finally:
             pass
         
-        # self.response = txt_converter.add_table_name()
-        self.response = txt_converter.dict_data
+        # self.response = self.txt_converter.add_table_name()
+        self.response = self.txt_converter.dict_data
         logger.debug({
             'filename': self.filename,
             'data': self.response
