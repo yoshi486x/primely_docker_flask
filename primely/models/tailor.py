@@ -19,6 +19,23 @@ TEXT_DIR_PATH = config['STORAGE']['TEXT']
 PAID_INCOME = 'total_earnings' # 差引支給額
 PAID_DATE = 'paid_date' # 支払支給日
 
+class TailorInterface(object):
+
+    def __init__(self):
+        self.tailor = PartitionerModel()
+
+    def run_through_tailor():
+        self.tailor.load_data(filename)
+        self.tailor.value_format_digit()
+        self.tailor.define_partitions()
+        self.tailor.partition_data()
+        self.tailor.self_correlate_block1()
+        self.tailor.self_correlate_block2()
+        self.tailor.value_format_date()
+        self.tailor.value_format_deductions()
+        self.tailor.value_format_remove_dot_in_keys()
+
+
 class DataModel(object):
     """Base model of source data when while being extracted and formatted"""
     def __init__(self, list_data=None, filenames=list):

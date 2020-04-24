@@ -17,21 +17,22 @@ EXEC_CMD = 'pdf2txt.py'
 
 
 class PdfReader(object):
-    def __init__(self, base_dir=None):
+    def __init__(self, filename, base_dir=None):
+        self.filename = filename
         if not base_dir:
             base_dir = utils.get_base_dir_path(__file__)
         self.base_dir = base_dir
 
-    def get_pdf_dir(self, filename, suffix='.pdf'):
+    def get_pdf_dir(self, suffix='.pdf'):
         """Organize input pdf path info"""
         # print('filename:', filename)
         input_full_dir_path = pathlib.Path(self.base_dir, PDF_DIR_PATH)
-        return pathlib.Path(input_full_dir_path, filename).with_suffix(suffix)
+        return pathlib.Path(input_full_dir_path, self.filename).with_suffix(suffix)
 
-    def get_txt_dir(self, filename, suffix='.txt'):
+    def get_txt_dir(self, suffix='.txt'):
         """Organize output txt path info"""
         output_full_dir_path = pathlib.Path(self.base_dir, OUTPUT_DIR_PATH)
-        return pathlib.Path(output_full_dir_path, filename).with_suffix(suffix)
+        return pathlib.Path(output_full_dir_path, self.filename).with_suffix(suffix)
 
     # TODO Set classmethod regarding pdf and txt imports
     def convert_pdf_to_txt(self, input_file, output_file):

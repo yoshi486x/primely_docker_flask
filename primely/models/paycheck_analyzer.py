@@ -65,32 +65,33 @@ class ConverterModel(object):
     1. Get all pdf file name for paycheck
     2. for each file, proceed Extract and Transform
     """
-    def __init__(self, status=None):
-        self.dict_data = collections.defaultdict()
+    def __init__(self, filename, status=None):
+        self.filename = filename
         self.status = status
+        self.response = collections.defaultdict()
 
-    def convert_pdf_into_text(self, filename):
+    def convert_pdf_into_text(self):
         """Utilize pdf_reader module to convert a pdf file to a text file"""
         
-        pdfReader = pdf_reader.PdfReader()
-        input_file_path = pdfReader.get_pdf_dir(filename)
-        output_file_path = pdfReader.get_txt_dir(filename)
-        pdfReader.convert_pdf_to_txt(input_file_path, output_file_path)
+        convert_pdf = pdf_reader.PdfReader(self.filename)
+        input_file_path = convert_pdf.get_pdf_dir()
+        output_file_path = convert_pdf.get_txt_dir()
+        convert_pdf.convert_pdf_to_txt(input_file_path, output_file_path)
 
-    def convert_text_into_dict(self, filename):
+    def convert_text_into_dict(self):
         """Transform txt data to dict format"""
 
         try:
-            text_tailor = tailor.PartitionerModel()
-            text_tailor.load_data(filename)
-            text_tailor.value_format_digit()
-            text_tailor.define_partitions()
-            text_tailor.partition_data()
-            text_tailor.self_correlate_block1()
-            text_tailor.self_correlate_block2()
-            text_tailor.value_format_date()
-            text_tailor.value_format_deductions()
-            text_tailor.value_format_remove_dot_in_keys()
+            txt_converter = tailor.PartitionerModel()
+            txt_converter.load_data(self.filename)
+            txt_converter.value_format_digit()
+            txt_converter.define_partitions()
+            txt_converter.partition_data()
+            txt_converter.self_correlate_block1()
+            txt_converter.self_correlate_block2()
+            txt_converter.value_format_date()
+            txt_converter.value_format_deductions()
+            txt_converter.value_format_remove_dot_in_keys()
         except:
             self.status = 'error'
             msg = 'Could not complete text transformation process'
@@ -108,17 +109,17 @@ class ConverterModel(object):
         finally:
             pass
         
-        # self.dict_data = text_tailor.add_table_name()
-        self.dict_data = text_tailor.dict_data
+        # self.response = txt_converter.add_table_name()
+        self.response = txt_converter.dict_data
         logger.debug({
-            'filename': filename,
-            'data': self.dict_data
+            'filename': self.filename,
+            'data': self.response
         })
 
-    def record_dict_data(self, filename):
+    def convert_dict_into_json(self):
         """Record dict_data to json files"""
         dest_info = {
-            'filename': filename,
+            'filename': self.filename,
             'dir_path': config['STORAGE']['JSON'],
             'file_path': None
         }
@@ -127,10 +128,11 @@ class ConverterModel(object):
         file_path = None 
         # recording_model = recording.RecordingModel(filename, file_path, dir_path)
         recording_model = recording.RecordingModel(**dest_info)
-        recording_model.record_data_in_json(self.dict_data)
+        recording_model.record_data_in_json(self.response)
 
 
-class FullAnalyzer(QueueingModel, ConverterModel):
+# class FullAnalyzer(QueueingModel, ConverterModel):
+class FullAnalyzer(QueueingModel):
     """This is the main process of Primely which can handle multiple 
     pdf files to iterate through all the functionalities that the 
     Primely package ratains."""
@@ -161,11 +163,12 @@ class FullAnalyzer(QueueingModel, ConverterModel):
         
         for j, filename in enumerate(self.filenames):
             try:
-                self.convert_pdf_into_text(filename)
-                self.convert_text_into_dict(filename)
-                self.record_dict_data(filename)
+                coverter = ConverterModel(filename)
+                coverter.convert_pdf_into_text()
+                coverter.convert_text_into_dict()
+                coverter.convert_dict_into_json()
             except:
-                self.status = 'error'
+                coverter.status = 'error'
                 msg = 'File conversion failed'
                 logger.critical({
                     'status': self.status,
@@ -175,10 +178,10 @@ class FullAnalyzer(QueueingModel, ConverterModel):
                 })
                 raise
             else:
-                self.status = 'success'
+                coverter.status = 'success'
                 msg = ''
                 logger.info({
-                    'status': self.status,
+                    'status': coverter.status,
                     'index': j,
                     'filename': filename,
                     'msg': msg
