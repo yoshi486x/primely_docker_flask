@@ -2,9 +2,11 @@
 TODO raise error when each main process fails
 TODO Separate severity of loggers for success and fails"""
 import collections
-import logging
-import sys
 import configparser
+import logging
+import multiprocessing
+import sys
+import time
 
 from primely.models import pdf_converter, queueing, recording, txt_converter, visualizing
 from primely.views import console
@@ -26,6 +28,22 @@ logger.propagate = False
 
 config = configparser.ConfigParser()
 config.read('config.ini')
+
+
+def timeit(method):
+    def timed(*args, **kwargs):
+        ts = time.time()
+        result = method(*args, **kwargs)
+        te = time.time()
+        if 'log_time' in kwargs:
+            name = kwargs.get('log_name', method.__name__.upper())
+            kw['log_time'][name] = int((te - ts) * 1000)
+        else:
+            print('%r  %2.2f ms' % \
+                  (method.__name__, (te - ts) * 1000))
+        return result
+    return timed
+
 
 class QueueingModel(object):
 
@@ -70,6 +88,7 @@ class ConverterModel(object):
         self.status = status
         self.response = collections.defaultdict()
 
+    @timeit
     def convert_pdf_into_text(self):
         """Utilize pdf_converter module to convert a pdf file to a text file"""
         
@@ -78,6 +97,7 @@ class ConverterModel(object):
         output_file_path = self.pdf_converter.get_txt_dir()
         self.pdf_converter.convert_pdf_to_txt(input_file_path, output_file_path)
 
+    @timeit
     def convert_text_into_dict(self):
         """Transform txt data to dict format"""
 
@@ -116,6 +136,7 @@ class ConverterModel(object):
             'data': self.response
         })
 
+    @timeit
     def convert_dict_into_json(self):
         """Record dict_data to json files"""
         dest_info = {
@@ -130,6 +151,15 @@ class ConverterModel(object):
         recording_model = recording.RecordingModel(**dest_info)
         recording_model.record_data_in_json(self.response)
 
+
+class Dispatcher(object):
+
+    @staticmethod
+    def fully_convert(filename):
+        coverter = ConverterModel(filename)
+        coverter.convert_pdf_into_text()
+        coverter.convert_text_into_dict()
+        coverter.convert_dict_into_json()
 
 # class FullAnalyzer(QueueingModel, ConverterModel):
 class FullAnalyzer(QueueingModel):
@@ -157,37 +187,15 @@ class FullAnalyzer(QueueingModel):
             return func(self)
         return wrapper
 
+    @timeit
     @_queue_decorator
     def process_all_input_data(self):
         """Use AnalyzerModel to process all PDF data"""
-        
-        for j, filename in enumerate(self.filenames):
-            try:
-                coverter = ConverterModel(filename)
-                coverter.convert_pdf_into_text()
-                coverter.convert_text_into_dict()
-                coverter.convert_dict_into_json()
-            except:
-                coverter.status = 'error'
-                msg = 'File conversion failed'
-                logger.critical({
-                    'status': self.status,
-                    'index': j,
-                    'filename': filename,
-                    'msg': msg
-                })
-                raise
-            else:
-                coverter.status = 'success'
-                msg = ''
-                logger.info({
-                    'status': coverter.status,
-                    'index': j,
-                    'filename': filename,
-                    'msg': msg
-                })
-            finally:
-                pass
+
+        with multiprocessing.Pool(8) as p:
+            r = p.map(Dispatcher.fully_convert, self.filenames)
+            logging.debug('executed')
+            logging.debug(r)
 
     @_queue_decorator
     def create_dataframe_in_time_series(self):
