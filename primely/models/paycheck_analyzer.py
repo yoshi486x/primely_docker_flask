@@ -2,11 +2,13 @@
 TODO raise error when each main process fails
 TODO Separate severity of loggers for success and fails"""
 import collections
-import logging
-import sys
 import configparser
+import logging
+import multiprocessing
+import sys
+import time
 
-from primely.models import pdf_reader, queueing, recording, tailor, visualizing
+from primely.models import pdf_converter, queueing, recording, txt_converter, visualizing
 from primely.views import console
 
 # create logger with '__name__'
@@ -26,6 +28,22 @@ logger.propagate = False
 
 config = configparser.ConfigParser()
 config.read('config.ini')
+
+
+def timeit(method):
+    def timed(*args, **kwargs):
+        ts = time.time()
+        result = method(*args, **kwargs)
+        te = time.time()
+        if 'log_time' in kwargs:
+            name = kwargs.get('log_name', method.__name__.upper())
+            kw['log_time'][name] = int((te - ts) * 1000)
+        else:
+            print('%r  %2.2f ms' % \
+                  (method.__name__, (te - ts) * 1000))
+        return result
+    return timed
+
 
 class QueueingModel(object):
 
@@ -65,32 +83,35 @@ class ConverterModel(object):
     1. Get all pdf file name for paycheck
     2. for each file, proceed Extract and Transform
     """
-    def __init__(self, status=None):
-        self.dict_data = collections.defaultdict()
+    def __init__(self, filename, status=None):
+        self.filename = filename
         self.status = status
+        self.response = collections.defaultdict()
 
-    def convert_pdf_into_text(self, filename):
-        """Utilize pdf_reader module to convert a pdf file to a text file"""
+    @timeit
+    def convert_pdf_into_text(self):
+        """Utilize pdf_converter module to convert a pdf file to a text file"""
         
-        pdfReader = pdf_reader.PdfReader()
-        input_file_path = pdfReader.get_pdf_dir(filename)
-        output_file_path = pdfReader.get_txt_dir(filename)
-        pdfReader.convert_pdf_to_txt(input_file_path, output_file_path)
+        self.pdf_converter = pdf_converter.PdfReader(self.filename)
+        input_file_path = self.pdf_converter.get_pdf_dir()
+        output_file_path = self.pdf_converter.get_txt_dir()
+        self.pdf_converter.convert_pdf_to_txt(input_file_path, output_file_path)
 
-    def convert_text_into_dict(self, filename):
+    @timeit
+    def convert_text_into_dict(self):
         """Transform txt data to dict format"""
 
         try:
-            text_tailor = tailor.PartitionerModel()
-            text_tailor.load_data(filename)
-            text_tailor.value_format_digit()
-            text_tailor.define_partitions()
-            text_tailor.partition_data()
-            text_tailor.self_correlate_block1()
-            text_tailor.self_correlate_block2()
-            text_tailor.value_format_date()
-            text_tailor.value_format_deductions()
-            text_tailor.value_format_remove_dot_in_keys()
+            self.txt_converter = txt_converter.PartitionerModel()
+            self.txt_converter.load_data(self.filename)
+            self.txt_converter.value_format_digit()
+            self.txt_converter.define_partitions()
+            self.txt_converter.partition_data()
+            self.txt_converter.self_correlate_block1()
+            self.txt_converter.self_correlate_block2()
+            self.txt_converter.value_format_date()
+            self.txt_converter.value_format_deductions()
+            self.txt_converter.value_format_remove_dot_in_keys()
         except:
             self.status = 'error'
             msg = 'Could not complete text transformation process'
@@ -108,17 +129,18 @@ class ConverterModel(object):
         finally:
             pass
         
-        # self.dict_data = text_tailor.add_table_name()
-        self.dict_data = text_tailor.dict_data
+        # self.response = self.txt_converter.add_table_name()
+        self.response = self.txt_converter.dict_data
         logger.debug({
-            'filename': filename,
-            'data': self.dict_data
+            'filename': self.filename,
+            'data': self.response
         })
 
-    def record_dict_data(self, filename):
+    @timeit
+    def convert_dict_into_json(self):
         """Record dict_data to json files"""
         dest_info = {
-            'filename': filename,
+            'filename': self.filename,
             'dir_path': config['STORAGE']['JSON'],
             'file_path': None
         }
@@ -127,10 +149,20 @@ class ConverterModel(object):
         file_path = None 
         # recording_model = recording.RecordingModel(filename, file_path, dir_path)
         recording_model = recording.RecordingModel(**dest_info)
-        recording_model.record_data_in_json(self.dict_data)
+        recording_model.record_data_in_json(self.response)
 
 
-class FullAnalyzer(QueueingModel, ConverterModel):
+class Dispatcher(object):
+
+    @staticmethod
+    def fully_convert(filename):
+        coverter = ConverterModel(filename)
+        coverter.convert_pdf_into_text()
+        coverter.convert_text_into_dict()
+        coverter.convert_dict_into_json()
+
+# class FullAnalyzer(QueueingModel, ConverterModel):
+class FullAnalyzer(QueueingModel):
     """This is the main process of Primely which can handle multiple 
     pdf files to iterate through all the functionalities that the 
     Primely package ratains."""
@@ -155,36 +187,15 @@ class FullAnalyzer(QueueingModel, ConverterModel):
             return func(self)
         return wrapper
 
+    @timeit
     @_queue_decorator
     def process_all_input_data(self):
         """Use AnalyzerModel to process all PDF data"""
-        
-        for j, filename in enumerate(self.filenames):
-            try:
-                self.convert_pdf_into_text(filename)
-                self.convert_text_into_dict(filename)
-                self.record_dict_data(filename)
-            except:
-                self.status = 'error'
-                msg = 'File conversion failed'
-                logger.critical({
-                    'status': self.status,
-                    'index': j,
-                    'filename': filename,
-                    'msg': msg
-                })
-                raise
-            else:
-                self.status = 'success'
-                msg = ''
-                logger.info({
-                    'status': self.status,
-                    'index': j,
-                    'filename': filename,
-                    'msg': msg
-                })
-            finally:
-                pass
+
+        with multiprocessing.Pool(8) as p:
+            r = p.map(Dispatcher.fully_convert, self.filenames)
+            logging.debug('executed')
+            logging.debug(r)
 
     @_queue_decorator
     def create_dataframe_in_time_series(self):
