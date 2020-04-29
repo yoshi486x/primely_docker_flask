@@ -1,7 +1,4 @@
 __pycache__
-*K_*.pdf
-*K_*.txt
-*K_*.json
 log/*
 pdwork*
 *.pyc
@@ -13,10 +10,7 @@ pdwork*
 /paycheck/
 /.vscode/
 /template/
-__print_pdf_textboxes.py
 .DS_Store
 camouflage.py
 config.py
 aws/*
-Escaped
-income_timechart.png
