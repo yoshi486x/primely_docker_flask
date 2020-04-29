@@ -84,6 +84,7 @@ class ConverterModel(object):
     1. Get all pdf file name for paycheck
     2. for each file, proceed Extract and Transform
     """
+
     def __init__(self, filename, status=None):
         self.filename = filename
         self.status = status
