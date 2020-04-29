@@ -30,10 +30,19 @@ $ git clone https://github.com/yoshiki-o0/primely_package.git
 ```
 
 Move to the home directory of the package.
+```bash
+$ cd primely_package
+```
+
+Create virtualenv if needed. Recommended python version is v3.7.4
+```bash
+$ virtualenv -p python3 <desired_path>
+$ source <desired_path>/bin/activate
+```
 
 Install dependent packages.
 ```bash
-$ pip install requirements.txt
+$ pip install --upgrade -r requirements.txt
 ```
 
 
@@ -52,16 +61,16 @@ $ tar -zxvf <package_name>
 
 ## Running the test
 ### Analyse your data
-Set your pdf files at `data/pdf`.
+
+Set your pdf files at `data/input/`.
 
 Run <br>
 ```bash
 $ python <package_home_dir_path>/main.py
 ```
 
-
 ### Check your json
-If the process completes successfully, the json response could be checked at `data/output/report/paycheck_timechart.json`.
+If the process completes successfully, the json response could be checked at `data/output/json/paycheck_timechart.json`.
 
 
 ## Built With
