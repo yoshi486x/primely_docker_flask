@@ -185,6 +185,16 @@ class FullAnalyzer(QueueingModel):
             # 'message': 'Check data/output/graphs_and_charts for exported image!'
         }))
 
+    def _setup_output_dir(func):
+        """Decorator to set a queue if not loaded"""
+        def wrapper(self):
+            utils.setup_output_dir(config['STORAGE']['TEXT'])
+            utils.setup_output_dir(config['STORAGE']['JSON'])
+            # utils.setup_output_dir(config['STORAGE']['GRAPH'])
+            utils.setup_output_dir(config['STORAGE']['REPORT'])
+            return func(self)
+        return wrapper
+
     def _queue_decorator(func):
         """Decorator to set a queue if not loaded"""
         def wrapper(self):
@@ -194,6 +204,7 @@ class FullAnalyzer(QueueingModel):
         return wrapper
 
     # @timeit
+    @_setup_output_dir
     @_queue_decorator
     def process_all_input_data(self):
         """Use AnalyzerModel to process all PDF data"""
