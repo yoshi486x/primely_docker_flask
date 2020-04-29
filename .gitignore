@@ -1,5 +1,4 @@
 __pycache__
-data/*
 log/*
 pdwork*
 *.pyc
@@ -11,7 +10,6 @@ pdwork*
 /paycheck/
 /.vscode/
 /template/
-__print_pdf_textboxes.py
 .DS_Store
 camouflage.py
 config.py

@@ -1,5 +1,4 @@
 import configparser
-import csv
 import os
 import pathlib
 
@@ -17,19 +16,25 @@ class InputQueue(object):
             base_dir = utils.get_base_dir_path(__file__)
         self.base_dir = base_dir
         self.all_files = all_files
+        if not pdf_files:
+            pdf_files = self.load_pdf_filenames()
         self.pdf_files = pdf_files
     
-    def load_pdf_filenames(self, all_files=list):
+    def load_pdf_filenames(self):
         """List all pdf files in designated directory"""
-        all_files = []
-        pdf_full_dir_path = pathlib.Path(self.base_dir, PDF_DIR_PATH)
-        self.pdf_files = os.listdir(pdf_full_dir_path)
 
-        # Extract filename without suffix
-        for item in os.listdir(pdf_full_dir_path):
+        pdf_full_dir_path = pathlib.Path(self.base_dir, PDF_DIR_PATH)
+        return os.listdir(pdf_full_dir_path)
+
+    def extract_filenames(self, all_files=[]):
+        """Extract filename without suffix"""
+
+        for item in self.pdf_files:
             filename, _ = os.path.splitext(item)
             all_files.append(filename)
         self.all_files = sorted(all_files)
+
+    def get_filename_list(self):
         return self.all_files
 
 
@@ -38,9 +43,7 @@ def main():
     # filenames = inputQueue.load_pdf_filenames()
     # print('pdf_files:', inputQueue.pdf_files)
     # print('all_files:', inputQueue.all_files)
-
-    reader = PdfReader()
-    reader.get_txt_dir
+    pass
 
 if __name__ == "__main__":
     main()

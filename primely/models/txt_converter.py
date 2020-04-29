@@ -19,6 +19,7 @@ TEXT_DIR_PATH = config['STORAGE']['TEXT']
 PAID_INCOME = 'total_earnings' # 差引支給額
 PAID_DATE = 'paid_date' # 支払支給日
 
+
 class DataModel(object):
     """Base model of source data when while being extracted and formatted"""
     def __init__(self, list_data=None, filenames=list):

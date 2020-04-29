@@ -16,6 +16,6 @@ print('############END OF PROCESS###########')
 
 
 # import packages for testing
-from primely.models import paycheck_analyzer, pdf_reader, queueing, recording, tailor, visualizing
+from primely.models import paycheck_analyzer, pdf_converter, queueing, recording, txt_converter, visualizing
 
 
