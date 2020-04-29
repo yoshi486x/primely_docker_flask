@@ -318,5 +318,5 @@ class FullAnalyzer(QueueingModel):
         # TODO include filenames and each processed status in the msg
         template = console.get_template('end_proc.txt', self.speak_color)
         print(template.substitute({
-            'message': 'Check data/output/graphs_and_charts for exported image!'
+            'message': 'Check data/output/json/paycheck_timechart.json for preprocessed data!'
         }))
