@@ -266,9 +266,11 @@ class FullAnalyzer(QueueingModel):
     def export_in_jsonfile(self, response):
         """Export api response of this whole package in a json file"""
 
+        dir_path = config['STORAGE']['REPORT']
+        utils.setup_output_dir(dir_path)
         dest_info = {
             'filename': 'paycheck_timechart.json',
-            'dir_path': config['STORAGE']['REPORT'],
+            'dir_path': dir_path,
             'file_path': None
         }
         recording_model = recording.RecordingModel(**dest_info)
