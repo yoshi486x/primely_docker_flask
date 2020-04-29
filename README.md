@@ -73,7 +73,7 @@ $ tar -zxvf <package_name>
 
 ## Polished With
 * pepe8, flake8, (Comming soon) pylint
-* (Comming soon) Unittest
+* Unittest
 
 ## Licence
 Primely is freely available for free non-commercial use and may be redistributed under conditions. Please, see the licence for further details.
