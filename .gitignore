@@ -1,5 +1,7 @@
 __pycache__
-data/*
+*K_*.pdf
+*K_*.txt
+*K_*.json
 log/*
 pdwork*
 *.pyc
@@ -16,3 +18,4 @@ __print_pdf_textboxes.py
 camouflage.py
 config.py
 aws/*
+Escaped
