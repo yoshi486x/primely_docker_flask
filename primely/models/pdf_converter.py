@@ -1,5 +1,4 @@
 import configparser
-import csv
 import os
 import pathlib
 import subprocess
@@ -32,6 +31,8 @@ class PdfReader(object):
     def get_txt_dir(self, suffix='.txt'):
         """Organize output txt path info"""
         output_full_dir_path = pathlib.Path(self.base_dir, OUTPUT_DIR_PATH)
+        # if not os.path.exists(output_full_dir_path):
+        utils.setup_output_dir(output_full_dir_path)
         return pathlib.Path(output_full_dir_path, self.filename).with_suffix(suffix)
 
     # TODO Set classmethod regarding pdf and txt imports

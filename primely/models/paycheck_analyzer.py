@@ -9,7 +9,7 @@ import sys
 import time
 
 from primely.models import pdf_converter, queueing, recording, txt_converter, visualizing
-from primely.views import console
+from primely.views import console, utils
 
 # create logger with '__name__'
 logger = logging.getLogger(__name__)
@@ -140,17 +140,21 @@ class ConverterModel(object):
     # @timeit
     def convert_dict_into_json(self):
         """Record dict_data to json files"""
+        dir_path = config['STORAGE']['JSON']
+        utils.setup_output_dir(dir_path)
         dest_info = {
             'filename': self.filename,
-            'dir_path': config['STORAGE']['JSON'],
+            'dir_path': dir_path,
             'file_path': None
         }
-        dir_path = config['STORAGE']['JSON']
         # print('dir_path:', dir_path)
         file_path = None 
         # recording_model = recording.RecordingModel(filename, file_path, dir_path)
         recording_model = recording.RecordingModel(**dest_info)
+        # recording_model = recording.RecordingModel(self.filename)
+        # output_path = recording_model.get_json_dir()
         recording_model.record_data_in_json(self.response)
+        # recording_model.record_dict_in_json(self.response, output_path)
 
 
 class Dispatcher(object):
@@ -193,10 +197,15 @@ class FullAnalyzer(QueueingModel):
     def process_all_input_data(self):
         """Use AnalyzerModel to process all PDF data"""
 
-        with multiprocessing.Pool(8) as p:
-            r = p.map(Dispatcher.fully_convert, self.filenames)
-            logging.debug('executed')
-            logging.debug(r)
+        # Multiprocess
+        # with multiprocessing.Pool(8) as p:
+        #     r = p.map(Dispatcher.fully_convert, self.filenames)
+        #     logging.debug('executed')
+        #     logging.debug(r)
+
+        # Single-process
+        for filename in self.filenames:
+            Dispatcher.fully_convert(filename)
 
     @_queue_decorator
     def create_dataframe_in_time_series(self):

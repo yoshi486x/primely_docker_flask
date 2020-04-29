@@ -21,7 +21,7 @@ class SolutionTest(unittest.TestCase):
     # @unittest.skip('skip!')
     def test_get_txt_dir(self):
         # test case 2
-        answer = pathlib.Path(self.root_path, 'data/output/temp/K_20180425.txt')
+        answer = pathlib.Path(self.root_path, 'data/output/txt/K_20180425.txt')
         self.assertEqual(
             self.pdf_converter.get_txt_dir(), answer)
 
@@ -30,7 +30,7 @@ class SolutionTest(unittest.TestCase):
     def test_convert_pdf_to_txt(self):
         # test case 3
         input_file_path = pathlib.Path(self.root_path, '/data/pdf/K_20180425.pdf')
-        output_file_path = pathlib.Path(self.root_path, '/data/output/temp/K_20180425.txt')
+        output_file_path = pathlib.Path(self.root_path, '/data/output/txt/K_20180425.txt')
         answer = 'success'
         self.assertEqual(
             self.pdf_converter.convert_pdf_to_txt(input_file_path, output_file_path),
