@@ -56,6 +56,7 @@ class QueueingModel(object):
         try:
             # TODO organize InputQueue func
             input_queue = queueing.InputQueue()
+            input_queue.extract_filenames()
             msg = 'Queue is set'
         except:
             self.status = 'error'
@@ -74,7 +75,7 @@ class QueueingModel(object):
         finally:
             pass
 
-        self.filenames = input_queue.load_pdf_filenames()
+        self.filenames = input_queue.get_filename_list()
 
 
 class ConverterModel(object):
@@ -88,7 +89,7 @@ class ConverterModel(object):
         self.status = status
         self.response = collections.defaultdict()
 
-    @timeit
+    # @timeit
     def convert_pdf_into_text(self):
         """Utilize pdf_converter module to convert a pdf file to a text file"""
         
@@ -97,7 +98,7 @@ class ConverterModel(object):
         output_file_path = self.pdf_converter.get_txt_dir()
         self.pdf_converter.convert_pdf_to_txt(input_file_path, output_file_path)
 
-    @timeit
+    # @timeit
     def convert_text_into_dict(self):
         """Transform txt data to dict format"""
 
@@ -136,7 +137,7 @@ class ConverterModel(object):
             'data': self.response
         })
 
-    @timeit
+    # @timeit
     def convert_dict_into_json(self):
         """Record dict_data to json files"""
         dest_info = {
@@ -187,7 +188,7 @@ class FullAnalyzer(QueueingModel):
             return func(self)
         return wrapper
 
-    @timeit
+    # @timeit
     @_queue_decorator
     def process_all_input_data(self):
         """Use AnalyzerModel to process all PDF data"""
