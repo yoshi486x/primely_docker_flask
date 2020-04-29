@@ -198,14 +198,14 @@ class FullAnalyzer(QueueingModel):
         """Use AnalyzerModel to process all PDF data"""
 
         # Multiprocess
-        # with multiprocessing.Pool(8) as p:
-        #     r = p.map(Dispatcher.fully_convert, self.filenames)
-        #     logging.debug('executed')
-        #     logging.debug(r)
+        with multiprocessing.Pool(8) as p:
+            r = p.map(Dispatcher.fully_convert, self.filenames)
+            logging.debug('executed')
+            logging.debug(r)
 
         # Single-process
-        for filename in self.filenames:
-            Dispatcher.fully_convert(filename)
+        # for filename in self.filenames:
+        #     Dispatcher.fully_convert(filename)
 
     @_queue_decorator
     def create_dataframe_in_time_series(self):
