@@ -1,4 +1,15 @@
 ﻿
+function executeConversion() {
+  $.getJSON('http://127.0.0.1:5000/convert').then(function() {
+    console.log('Conversion complete')
+  })
+}
+
+$('#run').submit(function(){
+  executeConversion();
+  return false
+})
+
 function getReport() {
     //Widgets count
     // $('.count-to').countTo();
@@ -14,26 +25,34 @@ function getReport() {
     // new Chart(document.getElementById("line_chart").getContext("2d"), getChartJs('bar'));
     // new Chart(document.getElementById("line_chart").getContext("2d"), getChartJs('bar_new'));
     // $.getJSON('https://raw.githubusercontent.com/yoshiki-o0/primely_web_console/master/data/data.json').then(function(data) {
-    // $.getJSON('http://127.0.0.1:5000/report').then(function(data) {
-    //     console.log(data)
-    //     new Chart(document.getElementById('line_chart').getContext('2d'),
-    //               getChartJs('bar_new', data))
-    // })
+
     $.getJSON('http://127.0.0.1:5000/report').then(function(data) {
         console.log(data)
         new Chart(document.getElementById('line_chart').getContext('2d'),
                   getChartJs('bar_new', data))
     })
+    // $.ajax({
+    //   type: 'GET',
+    //   url: {{ url_for('report')| tojson }},
+    //   data: $(this).serialize()
+    // }).done(renderChart)
+    
+    // function renderChart(data) {
+    //   new Chart(document.getElementById('line_chart').getContext('2d'),
+    //             getChartJs('bar_new', data))
+    // }
+
     // initDonutChart();
     // initSparkline();
 }
 
 // $('#run'.on('submit', getReport));
-$('#run').submit(function(){
+$('#view').submit(function(){
   getReport();
   return false
 })
 $(getReport);
+
 
 var realtime = 'on';
 // function initRealTimeChart() {
