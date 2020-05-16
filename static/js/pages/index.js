@@ -1,4 +1,5 @@
-﻿$(function () {
+﻿
+function getReport() {
     //Widgets count
     // $('.count-to').countTo();
 
@@ -13,13 +14,26 @@
     // new Chart(document.getElementById("line_chart").getContext("2d"), getChartJs('bar'));
     // new Chart(document.getElementById("line_chart").getContext("2d"), getChartJs('bar_new'));
     // $.getJSON('https://raw.githubusercontent.com/yoshiki-o0/primely_web_console/master/data/data.json').then(function(data) {
+    // $.getJSON('http://127.0.0.1:5000/report').then(function(data) {
+    //     console.log(data)
+    //     new Chart(document.getElementById('line_chart').getContext('2d'),
+    //               getChartJs('bar_new', data))
+    // })
     $.getJSON('http://127.0.0.1:5000/report').then(function(data) {
         console.log(data)
-        new Chart(document.getElementById('line_chart').getContext('2d'), getChartJs('bar_new', data))
+        new Chart(document.getElementById('line_chart').getContext('2d'),
+                  getChartJs('bar_new', data))
     })
     // initDonutChart();
     // initSparkline();
-});
+}
+
+// $('#run'.on('submit', getReport));
+$('#run').submit(function(){
+  getReport();
+  return false
+})
+$(getReport);
 
 var realtime = 'on';
 // function initRealTimeChart() {
