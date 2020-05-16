@@ -4,6 +4,7 @@ import sqlite3
 from flask import flash
 from flask import Flask
 from flask import g
+from flask import jsonify
 from flask import redirect
 from flask import render_template
 from flask import request
@@ -13,11 +14,14 @@ from flask import url_for
 from werkzeug.utils import secure_filename
 
 from primely.controller import controller
+from primely.views import response
 
 UPLOAD_FOLDER = 'data/input'
+DOWNLOAD_FOLDER = 'data/output/json/paycheck_timechart.json'
 ALLOWED_EXTENSIONS = {'pdf'}
 
 app = Flask(__name__)
+app.config['JSON_AS_ASCII'] = False
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
@@ -69,6 +73,15 @@ def upload_file():
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+@app.route('/report', methods=['GET'])
+def download_file():
+    if request.method == 'GET':
+        res = response.get_json_timechart()
+        if not res:
+            return "No", 404
+
+        return jsonify(res), 200
 
 def main():
     app.debug = True
