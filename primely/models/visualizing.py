@@ -22,13 +22,14 @@ INCOME_GRAPH_NAME = config['FILENAME']['GRAPH']
 PAID_DATE = 'paid_date'
 
 class JsonLoaderModel(object):
-    def __init__(self, filename, dict_data=None):
+    def __init__(self, filename, dir_path, dict_data=None):
+        self.dir_path = dir_path
         if not dict_data:
             dict_data = self._get_dict_data(filename)
         self.dict_data = dict_data
 
     def _get_dict_data(self, filename):
-        file_path = pathlib.Path(JSON_DIR_PATH, filename)
+        file_path = pathlib.Path(self.dir_path, filename)
         with open(file_path, 'r') as json_file:
             return json.load(json_file)
 
@@ -74,7 +75,7 @@ class CreateBaseTable(object):
             dates, keys, values, indexes = [], [], [], []
 
             # Get hash table from json
-            json_loader = JsonLoaderModel(filename)
+            json_loader = JsonLoaderModel(filename, JSON_DIR_PATH)
             dict_data = json_loader.dict_data
 
             # Extract parameters by category type

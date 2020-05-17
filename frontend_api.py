@@ -15,6 +15,7 @@ from werkzeug.utils import secure_filename
 
 from primely.controller import controller
 from primely.views import response
+from tools import remover
 
 UPLOAD_FOLDER = 'data/input'
 DOWNLOAD_FOLDER = 'data/output/json/paycheck_timechart.json'
@@ -26,10 +27,13 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
 @app.route('/')
-def hello_world():
-    return 'top'
+@app.route('/api', methods=['GET', 'POST', 'DELETE'])
+def home():
+    return render_template(
+        'index.html'
+    )
 
-@app.route('/convert', methods=['GET'])
+@app.route('/api/convert', methods=['GET'])
 def run_conversion():
     if request.method == 'GET':
         conversion = controller.paycheck_analysis()
@@ -37,6 +41,24 @@ def run_conversion():
             return "No", 404
 
         return 'conversion success', 200
+
+@app.route('/api/reset', methods=['DELETE'])
+def reset_report():
+    if request.method == 'DELETE':
+        reset = remover.remove_report()
+        if not reset:
+            return "No", 404
+
+        return 'Report deleted', 200
+
+@app.route('/api/delete', methods=['DELETE'])
+def delete_pdf():
+    if request.method == 'DELETE':
+        reset = remover.remove_pdf()
+        if not reset:
+            return "No", 404
+
+        return 'PDF deleted', 200
 
 
 def allowed_file(filename):
@@ -82,6 +104,16 @@ def download_file():
             return "No", 404
 
         return jsonify(res), 200
+
+@app.route('/ajax/_add_numbers')
+def add_numbers():
+    a = request.args.get('a', 0, type=int)
+    b = request.args.get('b', 0, type=int)
+    return jsonify(result=a + b)
+
+@app.route('/ajax')
+def ajax():
+    return render_template('ajax.html')
 
 def main():
     app.debug = True

@@ -1,16 +1,4 @@
-﻿
-function executeConversion() {
-  $.getJSON('http://127.0.0.1:5000/convert').then(function() {
-    console.log('Conversion complete')
-  })
-}
-
-$('#run').submit(function(){
-  executeConversion();
-  return false
-})
-
-function getReport() {
+﻿function getReport() {
     //Widgets count
     // $('.count-to').countTo();
 
@@ -51,7 +39,51 @@ $('#view').submit(function(){
   getReport();
   return false
 })
-$(getReport);
+
+function deletePdf() {
+  $.ajax({
+    method: 'DELETE',
+    url: 'api/delete',
+    success: function(result) {
+      console.log('Deleted PDF')}
+  });
+}
+
+$('#delete').submit(function(){
+  deletePdf();
+  return false
+})
+
+function deleteReport() {
+  $.ajax({
+    method: 'DELETE',
+    url: 'api/reset',
+    success: function(result) {
+      alert('Deleted report')}
+  });
+}
+
+$('#reset').submit(function(){
+  deleteReport();
+  return false
+})
+
+function executeConversion() {
+  $.get('http://127.0.0.1:5000/api/convert').done(function() {
+    alert('Conversion complete');
+    getReport();
+  });
+}
+
+$('#run').submit(function(){
+  executeConversion();
+  return false
+})
+
+// $(getReport);
+$(document).ready(function() {
+  getReport();
+});
 
 
 var realtime = 'on';
