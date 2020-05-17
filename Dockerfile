@@ -38,12 +38,13 @@ WORKDIR /opt/app
 RUN mkdir ./data/input
 RUN pip install -r requirements.txt
 
-RUN export FLASK_APP=flask_app.py
-RUN export FLASK_RUN_PORT=8000
+# export FLASK_APP=flask_app.py && export FLASK_RUN_PORT=80
+ENV FLASK_APP=flask_app.py
+ENV FLASK_RUN_PORT=80
 
-RUN flask run
+RUN flask run --host=0.0.0.0
 
-EXPOSE 8000/tcp
+EXPOSE 80/tcp
 
 
 
