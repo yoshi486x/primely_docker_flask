@@ -880,24 +880,9 @@
                         </div>
                         <div class="body">
                             <div>
-                                <!-- <form method=post enctype=multipart/form-data>
-                                    <input type=file name=file>
-                                    <input type=submit value=Upload>
-                                </form>
-                                <form method=get enctype=multipart/form-data>
-                                    <input type=submit value=Run>
-                                </form>
-                                <form method=get enctype=multipart/form-data>
-                                    <input type=submit value=View>
-                                </form>
-                                <form method=delete enctype=multipart/form-data>
-                                    <input type=submit value=Reset>
-                                </form>
-                                <form method=delete enctype=multipart/form-data>
-                                    <input type=submit value=Delete>
-                                </form> -->
-                                <form id=upload enctype=multipart/form-data>
-                                    <input type=file name=file>
+                                <form method=POST action=/api/uploads enctype=multipart/form-data>
+                                <!-- <form id=upload enctype=multipart/form-data> -->
+                                    <input type=file name=file[] multiple=true>
                                     <input type=submit value=Upload>
                                 </form>
                                 <form id=run enctype=multipart/form-data>

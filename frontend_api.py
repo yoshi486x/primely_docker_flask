@@ -17,7 +17,7 @@ from primely.controller import controller
 from primely.views import response
 from tools import remover
 
-UPLOAD_FOLDER = 'data/input'
+UPLOAD_FOLDER = 'data/input/'
 DOWNLOAD_FOLDER = 'data/output/json/paycheck_timechart.json'
 ALLOWED_EXTENSIONS = {'pdf'}
 
@@ -25,7 +25,13 @@ app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+"""Checks"""
+# For a given file, return whether it's an allowed type or not
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in app.config['ALLOWED_EXTENSIONS']
 
+"""API"""
 @app.route('/')
 @app.route('/api', methods=['GET', 'POST', 'DELETE'])
 def home():
@@ -65,10 +71,37 @@ def allowed_file(filename):
     return '.' in filename and \
         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@app.route('/interface', methods=['GET', 'POST'])
+@app.route('/api/uploads', methods=['POST'])
 def upload_file():
     if request.method == 'POST':
+        # Get the name of the uploaded files
+        print('request:', request.files)
+        print('request.form:', request.form)
+        
+        uploaded_files = request.files.getlist("file[]")
+        filenames = []
+        for file in uploaded_files:
+            # Check if the file is one of the allowed types/extensions
+            if file and allowed_file(file.filename):
+                # Make the filename safe, remove unsupported chars
+                filename = secure_filename(file.filename)
+                # Move the file form the temporal folder to the upload
+                # folder we setup
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                # Save the filename into a list, we'll use it later
+                filenames.append(filename)
+                # Redirect the user to the uploaded_file route, which
+                # will basicaly show on the browser the uploaded file
+        # Load an html page with a link to each uploaded file
+        return redirect('/')
+        # return 'Upload complete', 200
+
+
+@app.route('/test/uploads', methods=['GET', 'POST'])
+def test_upload_file():
+    if request.method == 'POST':
         # check if the post request has the file part
+        print('request.files:', request.files)
         if 'file' not in request.files:
             flash('No file part')
             return redirect(request.url)
@@ -81,13 +114,14 @@ def upload_file():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('uploaded_file', filename=filename))
+            # return redirect(url_for('uploaded_file', filename=filename))
+            return 'Upload success', 200
     return '''
     <!doctype html>
     <title>Upload new File</title>
     <h1>Upload new File</h1>
     <form method=post enctype=multipart/form-data>
-      <input type=file name=file>
+      <input type=file name=file multiple=multiple>
       <input type=submit value=Upload>
     </form>
     '''

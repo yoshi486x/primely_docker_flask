@@ -59,7 +59,7 @@ function deleteReport() {
     method: 'DELETE',
     url: 'api/reset',
     success: function(result) {
-      alert('Deleted report')}
+      console.log('Deleted report')}
   });
 }
 
@@ -77,6 +77,45 @@ function executeConversion() {
 
 $('#run').submit(function(){
   executeConversion();
+  return false
+})
+
+
+function uploadFiles() {
+  var form_data = new FormData();
+  var ins = document.getElementById('upload').files.length
+
+  for (var x = 0; x < ins; x++) {
+    form_data.append("files[]", document.getElementById('upload').files[x]);
+  }
+
+  $.ajax({
+    method: 'POST',
+    url: '/api/uploads',
+    data: form_data,
+    success: function(result) {
+      alert('Uploaded PDF')}
+  });
+}
+
+$('#upload').submit(function(){
+// $('#upload').on('click', function(){
+  // uploadFiles();
+  var form_data = new FormData();
+  var ins = document.getElementById('upload').files.length;
+
+  for (var x = 0; x < ins; x++) {
+    form_data.append("file[]", document.getElementById('upload').file[x]);
+  }
+
+  $.ajax({
+    method: 'POST',
+    url: '/api/uploads',
+    data: form_data,
+    success: function(result) {
+      alert('Uploaded PDF')}
+  });
+
   return false
 })
 
