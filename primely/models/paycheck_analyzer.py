@@ -222,7 +222,7 @@ class FullAnalyzer(QueueingModel):
     @_queue_decorator
     def create_dataframe_in_time_series(self):
         """Visualize data from json file and export a graph image """
-        # TODO: Implement sorting, renaming, camouflaging (0/3)
+        # TODO Implement sorting, renaming, camouflaging (0/3)
         try:
             visual = visualizing.DataframeFactory()
             visual.classify_json_data_in_categories(visual.categories)
