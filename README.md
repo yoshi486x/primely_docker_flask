@@ -19,25 +19,43 @@ This package can provide a json response where a series of paychecks are organiz
 
 
 ### Installing
-There's two way you could use this package.
-1. Git clone this repository.
-2. Extract from tarball.
-
-#### 1. Git clone
-Git clone this package.
+Git clone the latest repository. (e.g. <branch_name> = release/v0.0.1)
 ```bash
-$ git clone https://github.com/yoshiki-o0/primely_package.git
+$ git clone -b <branch_name> https://github.com/yoshiki-o0/primely_package.git
 ```
 
 Move to the home directory of the package.
+```bash
+$ cd primely_package
+```
+
+Create virtualenv if needed. Recommended python version is v3.7.4
+```bash
+$ virtualenv -p python3 <desired_path>
+$ source <desired_path>/bin/activate
+```
 
 Install dependent packages.
 ```bash
-$ pip install requirements.txt
+$ pip install --upgrade -r requirements.txt
 ```
 
+### Running the test
+<!-- ### Process your data -->
 
-#### 2. Extract from tarball
+Set your pdf files at `data/input/`. Create a directory if it doesn't exist.
+
+Run <br>
+```bash
+$ python <package_home_dir_path>/main.py
+```
+
+### Check your json
+If the process completes successfully, the json response will be extracted under `data/output/json/`.
+
+
+## Utilize as a package
+### Extract from tarball
 Download tarball from `primely_package/dist/<package_name>`.
 
 Move to the work directory where tarball is set.
@@ -50,26 +68,12 @@ Extract the package.
 $ tar -zxvf <package_name>
 ```
 
-## Running the test
-### Analyse your data
-Set your pdf files at `data/pdf`.
-
-Run <br>
-```bash
-$ python <package_home_dir_path>/main.py
-```
-
-
-### Check your json
-If the process completes successfully, the json response could be checked at `data/output/report/paycheck_timechart.json`.
-
-
 ## Built With
 * [pdfminor.six](https://github.com/pdfminer/pdfminer.six) - Used to extract text from pdf files.
 
 ## Polished With
 * pepe8, flake8, (Comming soon) pylint
-* (Comming soon) Unittest
+* Unittest
 
 ## Licence
 Primely is freely available for free non-commercial use and may be redistributed under conditions. Please, see the licence for further details.

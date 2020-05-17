@@ -30,5 +30,5 @@ setup(
         'primely.views',
         'tests',
     ],
-    test_suite='primely.tests'
+    test_suite='tests'
 )
