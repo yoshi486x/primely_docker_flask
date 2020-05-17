@@ -115,7 +115,7 @@ class DataframeFactory(CreateTimechartModel, CreateBaseTable):
             df = self.create_base_table(category)
             self.category_dataframe[category] = df
 
-    # TODO: Implement code on AWS to this function.
+    # TODO Implement code on AWS to this function.
     def sort_table(self):
 
         try:
