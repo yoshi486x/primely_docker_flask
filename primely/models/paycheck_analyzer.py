@@ -281,7 +281,7 @@ class FullAnalyzer(QueueingModel):
         dir_path = config['STORAGE']['REPORT']
         utils.setup_output_dir(dir_path)
         dest_info = {
-            'filename': 'paycheck_timechart.json',
+            'filename': config['FILENAME']['REPORT'],
             'dir_path': dir_path,
             'file_path': None
         }
