@@ -14,7 +14,8 @@
     // new Chart(document.getElementById("line_chart").getContext("2d"), getChartJs('bar_new'));
     // $.getJSON('https://raw.githubusercontent.com/yoshiki-o0/primely_web_console/master/data/data.json').then(function(data) {
 
-    $.getJSON('http://127.0.0.1:5000/report').then(function(data) {
+    // $.getJSON('http://127.0.0.1:8000/report').then(function(data) {
+    $.getJSON('/report').then(function(data) {
         console.log(data)
         new Chart(document.getElementById('line_chart').getContext('2d'),
                   getChartJs('bar_new', data))
@@ -69,7 +70,8 @@ $('#reset').submit(function(){
 })
 
 function executeConversion() {
-  $.get('http://127.0.0.1:5000/api/convert').done(function() {
+  // $.get('http://127.0.0.1:8000/api/convert').done(function() {
+  $.get('/api/convert').done(function() {
     alert('Conversion complete');
     getReport();
   });

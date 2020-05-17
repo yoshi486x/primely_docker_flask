@@ -35,7 +35,15 @@ RUN cd /opt && git clone https://github.com/yoshiki-o0/primely_docker_flask.git 
 
 WORKDIR /opt/app
 
+RUN mkdir ./data/input
 RUN pip install -r requirements.txt
 
+RUN export FLASK_APP=flask_app.py
+RUN export FLASK_RUN_PORT=8000
 
-EXPOSE 8080/tcp
+RUN flask run
+
+EXPOSE 8000/tcp
+
+
+
