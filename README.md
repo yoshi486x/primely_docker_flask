@@ -33,7 +33,7 @@ $ docker-compose up
 ```
 
 
-### Step 3: Access application
+### Step 3:Access application
 
 Hit `127.0.0.1:5000` on your browser
 
@@ -43,8 +43,8 @@ Hit `127.0.0.1:5000` on your browser
 |---|---|
 | `Choose Files`| Select paycheck PDF files to upload to server|
 | `Upload`| Commit upload on selected files|
-| `Run`| Execute conversion for the uploaded files. Run `View` on success.|
-| `View`| Draw a chart based on loaded data from server.|
+| `Run`| Execute conversion for the uploaded files. Run `View` on success|
+| `View`| Draw a chart based on loaded data from server|
 | `Reset`| Remove converted data on server|
 | `Delete`| Remove all PDF files on server|
 
