@@ -1,0 +1,17 @@
+__pycache__
+log/*
+pdwork*
+*.pyc
+*.csv
+*.json
+*.bk
+*.pdf
+/archive/
+/paycheck/
+/.vscode/
+/template/
+.DS_Store
+camouflage.py
+config.py
+aws/*
+*.egg-info
