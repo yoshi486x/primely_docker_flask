@@ -1,4 +1,5 @@
 FROM ubuntu:16.04
+# FROM python:3.7-alpine
 
 LABEL maintainer="Yoshiki Nakagawa <yoshiki.nakagawa10@gmail.com>"
 
@@ -31,19 +32,23 @@ RUN apt-get update && apt-get upgrade -y\
  && /usr/local/bin/python-build -v $PYTHON_VERSION $PYTHON_ROOT \
  && rm -rf $PYENV_ROOT
 
-RUN cd /opt && git clone https://github.com/yoshiki-o0/primely_docker_flask.git app
-
 WORKDIR /opt/app
-
-RUN mkdir ./data/input
-RUN pip install -r requirements.txt
 
 # export FLASK_APP=flask_app.py && export FLASK_RUN_PORT=80
 ENV FLASK_APP=flask_app.py
 ENV FLASK_RUN_PORT=80
 
-RUN flask run --host=0.0.0.0
+# RUN apk add --no-cache gcc musl-dev linux-headers
 
+# RUN cd /opt && git clone https://github.com/yoshiki-o0/primely_docker_flask.git app
+COPY requirements.txt requirements.txt
+RUN pip install -r requirements.txt
+
+COPY . .
+RUN mkdir ./data/input; exit 0
+# RUN pip install -r requirements.txt
+
+CMD flask run --host=0.0.0.0
 EXPOSE 80/tcp
 
 
