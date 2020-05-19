@@ -1,4 +1,5 @@
 import os
+import pathlib
 import sqlite3
 
 from flask import flash
@@ -18,12 +19,11 @@ from primely.views import response
 from tools import remover
 
 UPLOAD_FOLDER = 'data/input/'
-DOWNLOAD_FOLDER = 'data/output/json/paycheck_timechart.json'
 ALLOWED_EXTENSIONS = {'pdf'}
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['UPLOAD_FOLDER'] = pathlib.Path(os.environ['PRIMELY_ROOT'], UPLOAD_FOLDER)
 
 """Checks"""
 # For a given file, return whether it's an allowed type or not

@@ -63,7 +63,8 @@ docker build --no-cache -t <image-name> <path/to/Dockerfile>
 **Create a docker container from the Dockerfile:**
 
 ```bash
-docker run -p 0.0.0.0:5000:80/tcp --name <container-name> -d ./docker-images/.dockerfile
+docker run -p 0.0.0.0:5000:80/tcp --name <container-name> -d <image-id>
+docker run -it 0.0.0.0:5000:80/tcp --name <container-name> -d <image-id> bash
 ```
 
 **Stop container:**

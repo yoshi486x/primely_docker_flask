@@ -37,6 +37,7 @@ WORKDIR /opt/app
 # export FLASK_APP=flask_app.py && export FLASK_RUN_PORT=80
 ENV FLASK_APP=flask_app.py
 ENV FLASK_RUN_PORT=80
+# ENV PRIMELY_ROOT=/opt/app
 
 # RUN apk add --no-cache gcc musl-dev linux-headers
 
@@ -46,6 +47,7 @@ RUN pip install -r requirements.txt
 
 COPY . .
 RUN mkdir ./data/input; exit 0
+RUN sh scripts/setup.sh
 # RUN pip install -r requirements.txt
 
 CMD flask run --host=0.0.0.0
