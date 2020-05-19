@@ -31,6 +31,12 @@ git clone -b <branch-name> https://github.com/yoshiki-o0/primely_docker_flask.gi
 cd <path-to-local-repo>
 ```
 
+Run setup.sh
+
+```bash
+sh scripts/setup.sh
+```
+
 ### Step 2: Build and run container
 
 ```bash
@@ -51,6 +57,8 @@ Hit `127.0.0.1:5000` on your browser
 | `View`| Draw a chart based on loaded data from server|
 | `Reset`| Remove converted data on server|
 | `Delete`| Remove all PDF files on server|
+
+Enjoy!
 
 ## Relative Docker Commands
 
