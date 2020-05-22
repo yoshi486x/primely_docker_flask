@@ -15,6 +15,6 @@ camouflage.py
 config.py
 aws/*
 venv/
-dict/
+dist/
 build/
 *.egg-info/
