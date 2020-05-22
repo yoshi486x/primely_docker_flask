@@ -15,7 +15,7 @@
     // $.getJSON('https://raw.githubusercontent.com/yoshiki-o0/primely_web_console/master/data/data.json').then(function(data) {
 
     // $.getJSON('http://127.0.0.1:8000/report').then(function(data) {
-    $.getJSON('/report').then(function(data) {
+    $.getJSON('api/report').then(function(data) {
         console.log(data)
         new Chart(document.getElementById('line_chart').getContext('2d'),
                   getChartJs('bar_new', data))
