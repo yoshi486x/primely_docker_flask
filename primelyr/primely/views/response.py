@@ -3,8 +3,10 @@ import json
 import os
 import pathlib
 
-from primely.models import visualizing
-
+try:
+    from primely.models import visualizing
+except:
+    from primelyr.primely.models import visualizing
 
 # import global parameters from config.ini
 config = configparser.ConfigParser()

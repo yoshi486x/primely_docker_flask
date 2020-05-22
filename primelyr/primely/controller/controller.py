@@ -1,5 +1,7 @@
-from primely.models import paycheck_analyzer
-
+try:
+    from primely.models import paycheck_analyzer
+except:
+    from primelyr.primely.models import paycheck_analyzer
 
 def paycheck_analysis():
     """Handles every process of paycheck-graph package."""

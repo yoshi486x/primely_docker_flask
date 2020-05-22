@@ -8,8 +8,12 @@ import multiprocessing
 import sys
 import time
 
-from primely.models import pdf_converter, queueing, recording, txt_converter, visualizing
-from primely.views import console, utils
+try:
+    from primely.models import pdf_converter, queueing, recording, txt_converter, visualizing
+    from primely.views import console, utils
+except:
+    from primelyr.primely.models import pdf_converter, queueing, recording, txt_converter, visualizing
+    from primelyr.primely.views import console, utils
 
 # create logger with '__name__'
 logger = logging.getLogger(__name__)

@@ -14,9 +14,9 @@ from flask import send_from_directory
 from flask import url_for
 from werkzeug.utils import secure_filename
 
-from primely.controller import controller
-from primely.views import response
-from tools import remover
+from primelyr.primely.controller import controller
+from primelyr.primely.views import response
+from primelyr.tools import remover
 
 UPLOAD_FOLDER = 'data/input/'
 ALLOWED_EXTENSIONS = {'pdf'}

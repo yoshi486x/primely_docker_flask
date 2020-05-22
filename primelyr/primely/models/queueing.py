@@ -2,7 +2,10 @@ import configparser
 import os
 import pathlib
 
-from primely.views import utils
+try:
+    from primely.views import utils
+except:
+    from primelyr.primely.views import utils
 
 # import global parameters from config.ini
 config = configparser.ConfigParser()

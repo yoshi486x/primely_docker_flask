@@ -10,7 +10,7 @@ import pathlib
 try:
     from primely.views import utils
 except:
-    pass
+    from primelyr.primely.views import utils
 
 # import global parameters from config.ini
 config = configparser.ConfigParser()
