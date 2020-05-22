@@ -14,4 +14,7 @@ pdwork*
 camouflage.py
 config.py
 aws/*
-*.egg-info
+venv/
+dist/
+build/
+*.egg-info/
