@@ -1,2 +1,0 @@
-This process has reached the end.
-$message
