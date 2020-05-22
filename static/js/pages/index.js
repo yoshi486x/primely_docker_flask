@@ -35,12 +35,6 @@
     // initSparkline();
 }
 
-// $('#run'.on('submit', getReport));
-$('#view').submit(function(){
-  getReport();
-  return false
-})
-
 function deletePdf() {
   $.ajax({
     method: 'DELETE',
