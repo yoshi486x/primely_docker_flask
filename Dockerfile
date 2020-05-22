@@ -35,7 +35,7 @@ RUN apt-get update && apt-get upgrade -y\
 WORKDIR /opt/app
 
 # export FLASK_APP=flask_app.py && export FLASK_RUN_PORT=80
-ENV FLASK_APP=flask_app.py
+ENV FLASK_APP=flaskr/flask_app.py
 ENV FLASK_RUN_PORT=80
 # ENV PRIMELY_ROOT=/opt/app
 
