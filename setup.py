@@ -12,9 +12,9 @@ def read_requirements():
     return requirements
 
 setup(
-    name='primely_package',
+    name='primely_docker_flask',
     version='0.0.1',
-    description='Converts paychecks and returns json parameters',
+    description='Host Primely on Docker',
     long_description='README.md',
     author='Yoshiki Nakagawa',
     author_email='ben.nakagawa01@gmail.com',
@@ -22,13 +22,13 @@ setup(
     url='https://github.com/yoshiki-o0/primely_package',
     lincense='LICENCE',
     # package_dir={'': 'primely'},
-    # packages=find_packages(),
-    packages=[
-        'primely.controller',
-        'primely.models',
-        'primely.templates',
-        'primely.views',
-        'tests',
-    ],
+    packages=find_packages(),
+    # packages=[
+    #     'primely.controller',
+    #     'primely.models',
+    #     'primely.templates',
+    #     'primely.views',
+    #     'tests',
+    # ],
     test_suite='tests'
 )
