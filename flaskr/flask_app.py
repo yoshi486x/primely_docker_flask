@@ -14,16 +14,16 @@ from flask import send_from_directory
 from flask import url_for
 from werkzeug.utils import secure_filename
 
-from primelyr.primely.controller import controller
-from primelyr.primely.views import response
-from primelyr.tools import remover
+from primely.controller import controller
+from primely.tools import utils
+
 
 UPLOAD_FOLDER = 'data/input/'
 ALLOWED_EXTENSIONS = {'pdf'}
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
-app.config['UPLOAD_FOLDER'] = pathlib.Path(os.environ['PRIMELY_ROOT'], UPLOAD_FOLDER)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 """Checks"""
 def allowed_file(filename):
@@ -43,8 +43,11 @@ def home():
 def upload_file():
     if request.method == 'POST':
         # Get the name of the uploaded files
-        print('request:', request.files)
-        print('request.form:', request.form)
+        # print('request:', request.files)
+        # print('request.form:', request.form)
+
+        # Create data/input directory
+        utils.create_data_dir()
         
         uploaded_files = request.files.getlist("file[]")
         filenames = []
@@ -78,7 +81,7 @@ def run_conversion():
 @app.route('/api/report', methods=['GET'])
 def download_file():
     if request.method == 'GET':
-        res = response.get_json_timechart()
+        res = utils.get_json_timechart()
         if not res:
             return "No", 404
 
@@ -88,7 +91,7 @@ def download_file():
 @app.route('/api/reset', methods=['DELETE'])
 def reset_report():
     if request.method == 'DELETE':
-        reset = remover.remove_report()
+        reset = utils.remove_report()
         if not reset:
             return "No", 404
 
@@ -98,7 +101,7 @@ def reset_report():
 @app.route('/api/delete', methods=['DELETE'])
 def delete_pdf():
     if request.method == 'DELETE':
-        reset = remover.remove_pdf()
+        reset = utils.remove_pdf()
         if not reset:
             return "No", 404
 
