@@ -1,5 +1,4 @@
-export PRIMELY_ROOT="${PWD}/primelyr"
-echo "success: export PRIMELY_ROOT=$PRIMELY_ROOT"
+#!/bin/bash
 
 export FLASK_APP="flaskr/flask_app.py"
 echo "success: export FLASK_APP=$FLASK_APP"

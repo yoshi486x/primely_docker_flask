@@ -45,10 +45,12 @@ ENV FLASK_RUN_PORT=80
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
+# Install primely package
+COPY dist dist
+RUN pip install dist/primely-0.0.1-py3-none-any.whl
+
 COPY . .
-RUN mkdir ./data/input; exit 0
-RUN sh scripts/setup.sh
-# RUN pip install -r requirements.txt
+RUN sh scripts/env.sh
 
 CMD flask run --host=0.0.0.0
 EXPOSE 80/tcp
