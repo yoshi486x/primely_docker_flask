@@ -50,7 +50,7 @@ COPY dist dist
 RUN pip install dist/primely-0.0.1-py3-none-any.whl
 
 COPY . .
-RUN sh scripts/env.sh
+RUN sh scripts/setup.sh
 
 CMD flask run --host=0.0.0.0
 EXPOSE 80/tcp
