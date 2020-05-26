@@ -69,10 +69,18 @@ docker build --no-cache -t <image-name> <path/to/Dockerfile>
 
 **Create a docker container from the Dockerfile:**
 
-```bash
-docker run -p 0.0.0.0:5000:80/tcp --name <container-name> -d <image-id>
-docker run -it 0.0.0.0:5000:80/tcp --name <container-name> -d <image-id> bash
-```
+1. Activate predefined process from the Dockerfile
+
+    ```bash
+    docker run -p 0.0.0.0:5000:80/tcp --name <container-name> -d <image-id>
+    ```
+
+2. Setup container according to the Dockerfile, and login to it's container. (Flask app won't run on activation, since CMD parameter is overwritten by cli ENTRYPOINT parameter )
+
+    ```bash
+    docker run -it -p 0.0.0.0:5000:80/tcp --name <container-name> --entrypoint /bin/bash <image-id>
+    flask run --host=0.0.0.0 --port=80
+    ```
 
 **Stop container:**
 
