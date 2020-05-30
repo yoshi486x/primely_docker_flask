@@ -880,20 +880,24 @@
                         </div>
                         <div class="body">
                             <div>
-                                <form method=POST action=/api/uploads enctype=multipart/form-data>
-                                <!-- <form id=upload enctype=multipart/form-data> -->
+                                <!-- <form method=POST action=/api/uploads enctype=multipart/form-data> -->
+                                <form id=upload enctype=multipart/form-data method=POST>
                                     <input type=file name=file[] multiple=true>
                                     <input type=submit value=Upload>
                                 </form>
+                                <!-- <form method=POST action=/api/uploads enctype=multipart/form-data class=dropzone>
+                                    <input type=file name=file[] multiple=true>
+                                    <input type=submit value=Upload>
+                                </form> -->
                                 <form id=run enctype=multipart/form-data>
                                     <input type=submit value=Run>
                                 </form>
                                 <form id=reset enctype=multipart/form-data>
                                     <input type=submit value=Reset>
                                 </form>
-                                <form id=delete enctype=multipart/form-data>
+                                <!-- <form id=delete enctype=multipart/form-data>
                                     <input type=submit value=Delete>
-                                </form>
+                                </form> -->
                             </div>
                             <!-- <div id="real_time_chart" class="dashboard-flot-chart"></div> -->
                             <canvas id="line_chart" height="150"></canvas>
@@ -902,6 +906,57 @@
                 </div>
             </div>
             <!-- #END# CPU Usage -->
+            <!-- File Upload | Drag & Drop OR With Click & Choose -->
+            <div class="row clearfix">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="card">
+                        <div class="header">
+                            <h2>
+                                FILE UPLOAD & DELETE
+                                <!-- <small>Taken from <a href="http://www.dropzonejs.com/" target="_blank">www.dropzonejs.com</a></small> -->
+                            </h2>
+                            <ul class="header-dropdown m-r--5">
+                                <li class="dropdown">
+                                    <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                        <i class="material-icons">more_vert</i>
+                                    </a>
+                                    <ul class="dropdown-menu pull-right">
+                                        <li><a href="javascript:void(0);">Delete</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="body">
+                            <!-- <form method=POST action=/api/uploads enctype=multipart/form-data>
+                                <input type=file name=file[] multiple=true>
+                                <input type=submit value=Upload>
+                            </form> -->
+                            <div class="form-group">
+                                <form action="/api/uploads" id="frmFileUpload" class="dropzone" method="post" enctype="multipart/form-data">
+                                    <div class="dz-message">
+                                        <div class="drag-icon-cph">
+                                            <i class="material-icons">touch_app</i>
+                                        </div>
+                                        <h3>Drop files here or click to upload.</h3>
+                                        <em>(This is just a demo dropzone. Selected files are <strong>not</strong> actually uploaded.)</em>
+                                    </div>
+                                    <div class="fallback">
+                                        <input name="file" type="file" multiple=true />
+                                        <input type=submit value=Upload>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="clearfix">
+                                <form id=delete enctype=multipart/form-data>
+                                    <!-- <button class="btn btn-danger btn-right waves-effect" type="submit" value=Delete>DELETE</button> -->
+                                    <button class="btn btn-danger waves-effect" type="submit" value=Delete>DELETE</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- #END# File Upload | Drag & Drop OR With Click & Choose -->
             <div class="row clearfix">
                 <!-- Visitors -->
                 <!-- <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
@@ -1165,6 +1220,19 @@
     <!-- Custom Js -->
     <script src="static/js/admin.js"></script>
     <script src="static/js/pages/index.js"></script>
+    <script src="static/js/pages/forms/advanced-form-elements.js"></script>
+
+    <!-- Bootstrap Colorpicker Js -->
+    <script src="static/plugins/bootstrap-colorpicker/js/bootstrap-colorpicker.js"></script>
+
+    <!-- Dropzone Plugin Js -->
+    <script src="static/plugins/dropzone/dropzone.js"></script>
+
+    <!-- Colorpicker Css -->
+    <link href="static/plugins/bootstrap-colorpicker/css/bootstrap-colorpicker.css" rel="stylesheet" />
+    
+    <!-- Dropzone Css -->
+    <link href="static/plugins/dropzone/dropzone.css" rel="stylesheet">
 
     <!-- Demo Js -->
     <!-- <script src="js/demo.js"></script> -->

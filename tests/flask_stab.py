@@ -1,7 +1,10 @@
 import requests
 
+from context import flask_app
+
+
 r = requests.delete(
-    'http://127.0.0.1:5000/api/reset')
+    'http://127.0.0.1:5000/api/delete')
 print(r.text)
 
 # r = requests.post(

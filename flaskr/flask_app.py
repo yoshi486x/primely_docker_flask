@@ -71,10 +71,11 @@ def upload_file():
         # return 'Upload complete', 200
 
 #Run
-@app.route('/api/convert', methods=['GET'])
-def run_conversion():
+# @app.route('/api/convert', methods=['GET'])
+@app.route('/api/convert/<type>', methods=['GET'])
+def run_conversion(type='object'):
     if request.method == 'GET':
-        conversion = primely.controller.paycheck_analysis('object')
+        conversion = primely.controller.paycheck_analysis(type)
         if not conversion:
             return "No", 404
 
@@ -109,6 +110,9 @@ def delete_pdf():
             return "No", 404
 
         return 'PDF deleted', 200
+
+"""SQLite version"""
+
 
 
 def main():

@@ -2560,6 +2560,12 @@ section.content {
   .btn-group-vertical .btn + .dropdown-toggle {
     border-left: 1px solid rgba(0, 0, 0, 0.08) !important; }
 
+.btn-right {
+  float: right; }
+
+.clearfix {
+  overflow: hidden; }
+
 /* Bootstrap Tags Input ======================== */
 .bootstrap-tagsinput {
   -webkit-box-shadow: none !important;
