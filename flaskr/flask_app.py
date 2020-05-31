@@ -14,8 +14,11 @@ from flask import send_from_directory
 from flask import url_for
 from werkzeug.utils import secure_filename
 
-from primely.controller import controller
-from primely.tools import utils
+# from primely.controller import controller
+# from primely.tools import utils
+# from primely import controller, cli
+import primely.controller
+import primely.cli
 
 
 UPLOAD_FOLDER = 'data/input/'
@@ -47,7 +50,7 @@ def upload_file():
         # print('request.form:', request.form)
 
         # Create data/input directory
-        utils.create_data_dir()
+        primely.cli.create_data_dir()
         
         uploaded_files = request.files.getlist("file[]")
         filenames = []
@@ -68,10 +71,11 @@ def upload_file():
         # return 'Upload complete', 200
 
 #Run
-@app.route('/api/convert', methods=['GET'])
-def run_conversion():
+# @app.route('/api/convert', methods=['GET'])
+@app.route('/api/convert/<type>', methods=['GET'])
+def run_conversion(type='object'):
     if request.method == 'GET':
-        conversion = controller.paycheck_analysis()
+        conversion = primely.controller.paycheck_analysis(type)
         if not conversion:
             return "No", 404
 
@@ -81,7 +85,7 @@ def run_conversion():
 @app.route('/api/report', methods=['GET'])
 def download_file():
     if request.method == 'GET':
-        res = utils.get_json_timechart()
+        res = primely.cli.get_json_timechart()
         if not res:
             return "No", 404
 
@@ -91,7 +95,7 @@ def download_file():
 @app.route('/api/reset', methods=['DELETE'])
 def reset_report():
     if request.method == 'DELETE':
-        reset = utils.remove_report()
+        reset = primely.cli.remove_report()
         if not reset:
             return "No", 404
 
@@ -101,11 +105,14 @@ def reset_report():
 @app.route('/api/delete', methods=['DELETE'])
 def delete_pdf():
     if request.method == 'DELETE':
-        reset = utils.remove_pdf()
+        reset = primely.cli.remove_pdf()
         if not reset:
             return "No", 404
 
         return 'PDF deleted', 200
+
+"""SQLite version"""
+
 
 
 def main():

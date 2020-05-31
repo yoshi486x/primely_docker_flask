@@ -65,7 +65,7 @@ $('#reset').submit(function(){
 
 function executeConversion() {
   // $.get('http://127.0.0.1:8000/api/convert').done(function() {
-  $.get('/api/convert').done(function() {
+  $.get('/api/convert/object').done(function() {
     alert('Conversion complete');
     getReport();
   });
