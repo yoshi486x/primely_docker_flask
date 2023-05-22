@@ -2,6 +2,6 @@ Flask==1.1.2
 numpy==1.18.4
 pandas==1.0.3
 pdfminer==20191125
-requests==2.23.0
+requests==2.31.0
 six==1.14.0
 termcolor==1.1.0
